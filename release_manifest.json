@@ -1,0 +1,14 @@
+﻿{
+    "schema_version":  "1.0",
+    "system":  "Forecast-to-Rank Allocation",
+    "generated_at":  "2026-08-30T02:29:21.6624889+09:00",
+    "files":  {
+                  ".streamlit/config.toml":  "db02322f4dd50500387c3eaf9324e6f2948b63d5f6e39a6afa6e4b25a59858c0",
+                  "README.md":  "8fd4dbff5daf5dad4fc27de7052c6b4d3ba37fb895e457f7c4299bc8787e198e",
+                  "requirements.txt":  "a54d04dc87a8f1bbf54b80a33fa1bc9a2d58fcac48890207fca46fda93bdf25d",
+                  "src/dashboard/__pycache__/app.cpython-311.pyc":  "140e0f44347d7c8cdf1c9e2e60c304b2cd6835432c86ae8203fc7f46c8c6cc52",
+                  "src/dashboard/app.py":  "dc6ba96e5ece7877e5d6e78e94fbcdb38e1614dd2af63585b9198d26ef29e5ca",
+                  "src/dashboard/public_app.py":  "5ed603852d2b8aa609cbea5a8df2cd97a136f0f13a1cee70cc6e60329d19e9d4",
+                  "src/dashboard/public_data/f2r_public_state.json":  "b7c24e447c70322d681a2ae24eece5c0d648206e04a211d0adf5a439f3954533"
+              }
+}
