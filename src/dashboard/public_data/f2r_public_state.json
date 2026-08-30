@@ -47,6 +47,7 @@
         "year": "2026"
       }
     ],
+    "annual_returns_clock": "SIGNAL_ORIGIN_YEAR_ATTRIBUTION__LEGACY_RESEARCH_PROVENANCE",
     "coverage": "2017-03 → 2026-06 · 112 months",
     "drawdown_series": [
       {
@@ -3300,6 +3301,49 @@
         "series": "Momentum Top 4"
       }
     ],
+    "holding_annual_returns": [
+      {
+        "return": 0.1611609810993968,
+        "year": "2017"
+      },
+      {
+        "return": -0.14094099136007876,
+        "year": "2018"
+      },
+      {
+        "return": 0.2740464559401996,
+        "year": "2019"
+      },
+      {
+        "return": 0.3709442218750445,
+        "year": "2020"
+      },
+      {
+        "return": 0.22298906087796788,
+        "year": "2021"
+      },
+      {
+        "return": -0.13741756112064718,
+        "year": "2022"
+      },
+      {
+        "return": 0.25617864331010476,
+        "year": "2023"
+      },
+      {
+        "return": 0.18649351504340572,
+        "year": "2024"
+      },
+      {
+        "return": 0.2937421871025563,
+        "year": "2025"
+      },
+      {
+        "return": 0.06752584515887472,
+        "year": "2026"
+      }
+    ],
+    "holding_annual_returns_clock": "REALIZED_HOLDING_YEAR",
     "information_set_comparison": [
       {
         "Series": "Macro-only research comparator",
@@ -3336,454 +3380,683 @@
     },
     "monthly_returns": [
       {
+        "holding_month": "2017-04",
         "month": "2017-03",
-        "return": 0.0181644133092852
+        "return": 0.0181644133092852,
+        "signal_month": "2017-03"
       },
       {
+        "holding_month": "2017-05",
         "month": "2017-04",
-        "return": 0.0411589316637708
+        "return": 0.0411589316637708,
+        "signal_month": "2017-04"
       },
       {
+        "holding_month": "2017-06",
         "month": "2017-05",
-        "return": -0.0179789857857446
+        "return": -0.0179789857857446,
+        "signal_month": "2017-05"
       },
       {
+        "holding_month": "2017-07",
         "month": "2017-06",
-        "return": 0.0284879315823316
+        "return": 0.0284879315823316,
+        "signal_month": "2017-06"
       },
       {
+        "holding_month": "2017-08",
         "month": "2017-07",
-        "return": 0.0038642104374657
+        "return": 0.0038642104374657,
+        "signal_month": "2017-07"
       },
       {
+        "holding_month": "2017-09",
         "month": "2017-08",
-        "return": 0.0032647532814997
+        "return": 0.0032647532814997,
+        "signal_month": "2017-08"
       },
       {
+        "holding_month": "2017-10",
         "month": "2017-09",
-        "return": 0.0420897653162986
+        "return": 0.0420897653162986,
+        "signal_month": "2017-09"
       },
       {
+        "holding_month": "2017-11",
         "month": "2017-10",
-        "return": 0.0117581465301903
+        "return": 0.0117581465301903,
+        "signal_month": "2017-10"
       },
       {
+        "holding_month": "2017-12",
         "month": "2017-11",
-        "return": 0.021327775957178
+        "return": 0.021327775957178,
+        "signal_month": "2017-11"
       },
       {
+        "holding_month": "2018-01",
         "month": "2017-12",
-        "return": 0.0191192399051585
+        "return": 0.0191192399051585,
+        "signal_month": "2017-12"
       },
       {
+        "holding_month": "2018-02",
         "month": "2018-01",
-        "return": -0.0445087464632508
+        "return": -0.0445087464632508,
+        "signal_month": "2018-01"
       },
       {
+        "holding_month": "2018-03",
         "month": "2018-02",
-        "return": -0.0162369226765387
+        "return": -0.0162369226765387,
+        "signal_month": "2018-02"
       },
       {
+        "holding_month": "2018-04",
         "month": "2018-03",
-        "return": 0.0183561955343961
+        "return": 0.0183561955343961,
+        "signal_month": "2018-03"
       },
       {
+        "holding_month": "2018-05",
         "month": "2018-04",
-        "return": 0.0149945863589488
+        "return": 0.0149945863589488,
+        "signal_month": "2018-04"
       },
       {
+        "holding_month": "2018-06",
         "month": "2018-05",
-        "return": -0.0231608278469095
+        "return": -0.0231608278469095,
+        "signal_month": "2018-05"
       },
       {
+        "holding_month": "2018-07",
         "month": "2018-06",
-        "return": 0.0189478307431531
+        "return": 0.0189478307431531,
+        "signal_month": "2018-06"
       },
       {
+        "holding_month": "2018-08",
         "month": "2018-07",
-        "return": 0.0337086086613001
+        "return": 0.0337086086613001,
+        "signal_month": "2018-07"
       },
       {
+        "holding_month": "2018-09",
         "month": "2018-08",
-        "return": -0.0009818302997063
+        "return": -0.0009818302997063,
+        "signal_month": "2018-08"
       },
       {
+        "holding_month": "2018-10",
         "month": "2018-09",
-        "return": -0.0851703253875978
+        "return": -0.0851703253875978,
+        "signal_month": "2018-09"
       },
       {
+        "holding_month": "2018-11",
         "month": "2018-10",
-        "return": 0.0183554700202224
+        "return": 0.0183554700202224,
+        "signal_month": "2018-10"
       },
       {
+        "holding_month": "2018-12",
         "month": "2018-11",
-        "return": -0.093993850602501
+        "return": -0.093993850602501,
+        "signal_month": "2018-11"
       },
       {
+        "holding_month": "2019-01",
         "month": "2018-12",
-        "return": 0.0678437973647556
+        "return": 0.0678437973647556,
+        "signal_month": "2018-12"
       },
       {
+        "holding_month": "2019-02",
         "month": "2019-01",
-        "return": 0.0236049477247281
+        "return": 0.0236049477247281,
+        "signal_month": "2019-01"
       },
       {
+        "holding_month": "2019-03",
         "month": "2019-02",
-        "return": 0.0113228859898671
+        "return": 0.0113228859898671,
+        "signal_month": "2019-02"
       },
       {
+        "holding_month": "2019-04",
         "month": "2019-03",
-        "return": 0.0172923957980672
+        "return": 0.0172923957980672,
+        "signal_month": "2019-03"
       },
       {
+        "holding_month": "2019-05",
         "month": "2019-04",
-        "return": -0.0385002644967976
+        "return": -0.0385002644967976,
+        "signal_month": "2019-04"
       },
       {
+        "holding_month": "2019-06",
         "month": "2019-05",
-        "return": 0.0798690477519697
+        "return": 0.0798690477519697,
+        "signal_month": "2019-05"
       },
       {
+        "holding_month": "2019-07",
         "month": "2019-06",
-        "return": -0.0122107677536109
+        "return": -0.0122107677536109,
+        "signal_month": "2019-06"
       },
       {
+        "holding_month": "2019-08",
         "month": "2019-07",
-        "return": 0.0005621971828656
+        "return": 0.0005621971828656,
+        "signal_month": "2019-07"
       },
       {
+        "holding_month": "2019-09",
         "month": "2019-08",
-        "return": -0.0009615577812047
+        "return": -0.0009615577812047,
+        "signal_month": "2019-08"
       },
       {
+        "holding_month": "2019-10",
         "month": "2019-09",
-        "return": 0.0481138064764525
+        "return": 0.0481138064764525,
+        "signal_month": "2019-09"
       },
       {
+        "holding_month": "2019-11",
         "month": "2019-10",
-        "return": 0.0046158414677393
+        "return": 0.0046158414677393,
+        "signal_month": "2019-10"
       },
       {
+        "holding_month": "2019-12",
         "month": "2019-11",
-        "return": 0.0495187950697184
+        "return": 0.0495187950697184,
+        "signal_month": "2019-11"
       },
       {
+        "holding_month": "2020-01",
         "month": "2019-12",
-        "return": 0.0176153328594342
+        "return": 0.0176153328594342,
+        "signal_month": "2019-12"
       },
       {
+        "holding_month": "2020-02",
         "month": "2020-01",
-        "return": -0.0127608425756925
+        "return": -0.0127608425756925,
+        "signal_month": "2020-01"
       },
       {
+        "holding_month": "2020-03",
         "month": "2020-02",
-        "return": -0.0898957000882217
+        "return": -0.0898957000882217,
+        "signal_month": "2020-02"
       },
       {
+        "holding_month": "2020-04",
         "month": "2020-03",
-        "return": 0.1269503132838643
+        "return": 0.1269503132838643,
+        "signal_month": "2020-03"
       },
       {
+        "holding_month": "2020-05",
         "month": "2020-04",
-        "return": 0.0753842596598943
+        "return": 0.0753842596598943,
+        "signal_month": "2020-04"
       },
       {
+        "holding_month": "2020-06",
         "month": "2020-05",
-        "return": 0.0326832171994533
+        "return": 0.0326832171994533,
+        "signal_month": "2020-05"
       },
       {
+        "holding_month": "2020-07",
         "month": "2020-06",
-        "return": 0.0474559586460358
+        "return": 0.0474559586460358,
+        "signal_month": "2020-06"
       },
       {
+        "holding_month": "2020-08",
         "month": "2020-07",
-        "return": 0.0635417538970077
+        "return": 0.0635417538970077,
+        "signal_month": "2020-07"
       },
       {
+        "holding_month": "2020-09",
         "month": "2020-08",
-        "return": -0.0301928234542751
+        "return": -0.0301928234542751,
+        "signal_month": "2020-08"
       },
       {
+        "holding_month": "2020-10",
         "month": "2020-09",
-        "return": -0.0206334152259351
+        "return": -0.0206334152259351,
+        "signal_month": "2020-09"
       },
       {
+        "holding_month": "2020-11",
         "month": "2020-10",
-        "return": 0.0977638643777276
+        "return": 0.0977638643777276,
+        "signal_month": "2020-10"
       },
       {
+        "holding_month": "2020-12",
         "month": "2020-11",
-        "return": 0.0314712286403351
+        "return": 0.0314712286403351,
+        "signal_month": "2020-11"
       },
       {
+        "holding_month": "2021-01",
         "month": "2020-12",
-        "return": 0.0518695806679134
+        "return": 0.0518695806679134,
+        "signal_month": "2020-12"
       },
       {
+        "holding_month": "2021-02",
         "month": "2021-01",
-        "return": 0.0241611209370116
+        "return": 0.0241611209370116,
+        "signal_month": "2021-01"
       },
       {
+        "holding_month": "2021-03",
         "month": "2021-02",
-        "return": 0.0231039328985224
+        "return": 0.0231039328985224,
+        "signal_month": "2021-02"
       },
       {
+        "holding_month": "2021-04",
         "month": "2021-03",
-        "return": 0.0311769121644405
+        "return": 0.0311769121644405,
+        "signal_month": "2021-03"
       },
       {
+        "holding_month": "2021-05",
         "month": "2021-04",
-        "return": 0.0231452127577674
+        "return": 0.0231452127577674,
+        "signal_month": "2021-04"
       },
       {
+        "holding_month": "2021-06",
         "month": "2021-05",
-        "return": 0.016461829815975
+        "return": 0.016461829815975,
+        "signal_month": "2021-05"
       },
       {
+        "holding_month": "2021-07",
         "month": "2021-06",
-        "return": 0.0221821814982381
+        "return": 0.0221821814982381,
+        "signal_month": "2021-06"
       },
       {
+        "holding_month": "2021-08",
         "month": "2021-07",
-        "return": 0.0139834061276653
+        "return": 0.0139834061276653,
+        "signal_month": "2021-07"
       },
       {
+        "holding_month": "2021-09",
         "month": "2021-08",
-        "return": -0.0314881831602588
+        "return": -0.0314881831602588,
+        "signal_month": "2021-08"
       },
       {
+        "holding_month": "2021-10",
         "month": "2021-09",
-        "return": 0.0593572844698244
+        "return": 0.0593572844698244,
+        "signal_month": "2021-09"
       },
       {
+        "holding_month": "2021-11",
         "month": "2021-10",
-        "return": -0.0530768144021948
+        "return": -0.0530768144021948,
+        "signal_month": "2021-10"
       },
       {
+        "holding_month": "2021-12",
         "month": "2021-11",
-        "return": 0.02751890208759
+        "return": 0.02751890208759,
+        "signal_month": "2021-11"
       },
       {
+        "holding_month": "2022-01",
         "month": "2021-12",
-        "return": -0.0306194166137355
+        "return": -0.0306194166137355,
+        "signal_month": "2021-12"
       },
       {
+        "holding_month": "2022-02",
         "month": "2022-01",
-        "return": -0.0132284125295101
+        "return": -0.0132284125295101,
+        "signal_month": "2022-01"
       },
       {
+        "holding_month": "2022-03",
         "month": "2022-02",
-        "return": 0.0619622862070786
+        "return": 0.0619622862070786,
+        "signal_month": "2022-02"
       },
       {
+        "holding_month": "2022-04",
         "month": "2022-03",
-        "return": -0.042476556202548
+        "return": -0.042476556202548,
+        "signal_month": "2022-03"
       },
       {
+        "holding_month": "2022-05",
         "month": "2022-04",
-        "return": -0.0079292389200925
+        "return": -0.0079292389200925,
+        "signal_month": "2022-04"
       },
       {
+        "holding_month": "2022-06",
         "month": "2022-05",
-        "return": -0.0646104162137959
+        "return": -0.0646104162137959,
+        "signal_month": "2022-05"
       },
       {
+        "holding_month": "2022-07",
         "month": "2022-06",
-        "return": 0.0735265147414131
+        "return": 0.0735265147414131,
+        "signal_month": "2022-06"
       },
       {
+        "holding_month": "2022-08",
         "month": "2022-07",
-        "return": -0.0471868729420767
+        "return": -0.0471868729420767,
+        "signal_month": "2022-07"
       },
       {
+        "holding_month": "2022-09",
         "month": "2022-08",
-        "return": -0.0836021681411673
+        "return": -0.0836021681411673,
+        "signal_month": "2022-08"
       },
       {
+        "holding_month": "2022-10",
         "month": "2022-09",
-        "return": 0.0388872328183952
+        "return": 0.0388872328183952,
+        "signal_month": "2022-09"
       },
       {
+        "holding_month": "2022-11",
         "month": "2022-10",
-        "return": 0.0327261841512173
+        "return": 0.0327261841512173,
+        "signal_month": "2022-10"
       },
       {
+        "holding_month": "2022-12",
         "month": "2022-11",
-        "return": -0.0497501441662982
+        "return": -0.0497501441662982,
+        "signal_month": "2022-11"
       },
       {
+        "holding_month": "2023-01",
         "month": "2022-12",
-        "return": 0.1276830179497507
+        "return": 0.1276830179497507,
+        "signal_month": "2022-12"
       },
       {
+        "holding_month": "2023-02",
         "month": "2023-01",
-        "return": -0.04747206416781
+        "return": -0.04747206416781,
+        "signal_month": "2023-01"
       },
       {
+        "holding_month": "2023-03",
         "month": "2023-02",
-        "return": 0.0126328397843433
+        "return": 0.0126328397843433,
+        "signal_month": "2023-02"
       },
       {
+        "holding_month": "2023-04",
         "month": "2023-03",
-        "return": -0.0006256878523708
+        "return": -0.0006256878523708,
+        "signal_month": "2023-03"
       },
       {
+        "holding_month": "2023-05",
         "month": "2023-04",
-        "return": 0.0350715663219323
+        "return": 0.0350715663219323,
+        "signal_month": "2023-04"
       },
       {
+        "holding_month": "2023-06",
         "month": "2023-05",
-        "return": 0.0489440193544634
+        "return": 0.0489440193544634,
+        "signal_month": "2023-05"
       },
       {
+        "holding_month": "2023-07",
         "month": "2023-06",
-        "return": 0.0397909765100402
+        "return": 0.0397909765100402,
+        "signal_month": "2023-06"
       },
       {
+        "holding_month": "2023-08",
         "month": "2023-07",
-        "return": -0.0311782980478925
+        "return": -0.0311782980478925,
+        "signal_month": "2023-07"
       },
       {
+        "holding_month": "2023-09",
         "month": "2023-08",
-        "return": -0.0626083820915722
+        "return": -0.0626083820915722,
+        "signal_month": "2023-08"
       },
       {
+        "holding_month": "2023-10",
         "month": "2023-09",
-        "return": -0.0274806988614873
+        "return": -0.0274806988614873,
+        "signal_month": "2023-09"
       },
       {
+        "holding_month": "2023-11",
         "month": "2023-10",
-        "return": 0.1189840429531888
+        "return": 0.1189840429531888,
+        "signal_month": "2023-10"
       },
       {
+        "holding_month": "2023-12",
         "month": "2023-11",
-        "return": 0.0357398188694373
+        "return": 0.0357398188694373,
+        "signal_month": "2023-11"
       },
       {
+        "holding_month": "2024-01",
         "month": "2023-12",
-        "return": 0.0049620788294182
+        "return": 0.0049620788294182,
+        "signal_month": "2023-12"
       },
       {
+        "holding_month": "2024-02",
         "month": "2024-01",
-        "return": 0.0433849599015748
+        "return": 0.0433849599015748,
+        "signal_month": "2024-01"
       },
       {
+        "holding_month": "2024-03",
         "month": "2024-02",
-        "return": 0.0256666027850534
+        "return": 0.0256666027850534,
+        "signal_month": "2024-02"
       },
       {
+        "holding_month": "2024-04",
         "month": "2024-03",
-        "return": -0.0571117498736162
+        "return": -0.0571117498736162,
+        "signal_month": "2024-03"
       },
       {
+        "holding_month": "2024-05",
         "month": "2024-04",
-        "return": 0.0432582005806118
+        "return": 0.0432582005806118,
+        "signal_month": "2024-04"
       },
       {
+        "holding_month": "2024-06",
         "month": "2024-05",
-        "return": 0.019806304568269
+        "return": 0.019806304568269,
+        "signal_month": "2024-05"
       },
       {
+        "holding_month": "2024-07",
         "month": "2024-06",
-        "return": 0.0183219663508325
+        "return": 0.0183219663508325,
+        "signal_month": "2024-06"
       },
       {
+        "holding_month": "2024-08",
         "month": "2024-07",
-        "return": -0.0027638334855971
+        "return": -0.0027638334855971,
+        "signal_month": "2024-07"
       },
       {
+        "holding_month": "2024-09",
         "month": "2024-08",
-        "return": 0.0344113848361898
+        "return": 0.0344113848361898,
+        "signal_month": "2024-08"
       },
       {
+        "holding_month": "2024-10",
         "month": "2024-09",
-        "return": 0.0122447214438233
+        "return": 0.0122447214438233,
+        "signal_month": "2024-09"
       },
       {
+        "holding_month": "2024-11",
         "month": "2024-10",
-        "return": 0.0640183328702156
+        "return": 0.0640183328702156,
+        "signal_month": "2024-10"
       },
       {
+        "holding_month": "2024-12",
         "month": "2024-11",
-        "return": -0.0279600190190783
+        "return": -0.0279600190190783,
+        "signal_month": "2024-11"
       },
       {
+        "holding_month": "2025-01",
         "month": "2024-12",
-        "return": 0.0272933419777142
+        "return": 0.0272933419777142,
+        "signal_month": "2024-12"
       },
       {
+        "holding_month": "2025-02",
         "month": "2025-01",
-        "return": -0.026294425939505
+        "return": -0.026294425939505,
+        "signal_month": "2025-01"
       },
       {
+        "holding_month": "2025-03",
         "month": "2025-02",
-        "return": -0.0119897270997945
+        "return": -0.0119897270997945,
+        "signal_month": "2025-02"
       },
       {
+        "holding_month": "2025-04",
         "month": "2025-03",
-        "return": -0.0077074985115397
+        "return": -0.0077074985115397,
+        "signal_month": "2025-03"
       },
       {
+        "holding_month": "2025-05",
         "month": "2025-04",
-        "return": 0.0608642394485571
+        "return": 0.0608642394485571,
+        "signal_month": "2025-04"
       },
       {
+        "holding_month": "2025-06",
         "month": "2025-05",
-        "return": 0.0353157602981201
+        "return": 0.0353157602981201,
+        "signal_month": "2025-05"
       },
       {
+        "holding_month": "2025-07",
         "month": "2025-06",
-        "return": 0.0025093923486794
+        "return": 0.0025093923486794,
+        "signal_month": "2025-06"
       },
       {
+        "holding_month": "2025-08",
         "month": "2025-07",
-        "return": 0.0303307214408876
+        "return": 0.0303307214408876,
+        "signal_month": "2025-07"
       },
       {
+        "holding_month": "2025-09",
         "month": "2025-08",
-        "return": 0.0895753514357129
+        "return": 0.0895753514357129,
+        "signal_month": "2025-08"
       },
       {
+        "holding_month": "2025-10",
         "month": "2025-09",
-        "return": 0.0285465507489684
+        "return": 0.0285465507489684,
+        "signal_month": "2025-09"
       },
       {
+        "holding_month": "2025-11",
         "month": "2025-10",
-        "return": -0.0129973174507703
+        "return": -0.0129973174507703,
+        "signal_month": "2025-10"
       },
       {
+        "holding_month": "2025-12",
         "month": "2025-11",
-        "return": 0.0513011775333876
+        "return": 0.0513011775333876,
+        "signal_month": "2025-11"
       },
       {
+        "holding_month": "2026-01",
         "month": "2025-12",
-        "return": 0.0408388284036528
+        "return": 0.0408388284036528,
+        "signal_month": "2025-12"
       },
       {
+        "holding_month": "2026-02",
         "month": "2026-01",
-        "return": 0.0080982786367578
+        "return": 0.0080982786367578,
+        "signal_month": "2026-01"
       },
       {
+        "holding_month": "2026-03",
         "month": "2026-02",
-        "return": -0.0698877412785377
+        "return": -0.0698877412785377,
+        "signal_month": "2026-02"
       },
       {
+        "holding_month": "2026-04",
         "month": "2026-03",
-        "return": 0.1304494528643874
+        "return": 0.1304494528643874,
+        "signal_month": "2026-03"
       },
       {
+        "holding_month": "2026-05",
         "month": "2026-04",
-        "return": 0.0958674228869379
+        "return": 0.0958674228869379,
+        "signal_month": "2026-04"
       },
       {
+        "holding_month": "2026-06",
         "month": "2026-05",
-        "return": -0.0702140471206256
+        "return": -0.0702140471206256,
+        "signal_month": "2026-05"
       },
       {
+        "holding_month": "2026-07",
         "month": "2026-06",
-        "return": -0.0503479147496398
+        "return": -0.0503479147496398,
+        "signal_month": "2026-06"
       }
     ],
+    "performance_clock": {
+      "calendar_return_clock": "REALIZED_HOLDING_YEAR",
+      "holding_month_rule": "signal_origin_month + 1",
+      "source_month": "signal_origin_month"
+    },
     "provenance": "RESEARCH_BACKTEST"
   },
   "historical_targets": {
@@ -5296,8 +5569,8 @@
       }
     ]
   },
-  "issued_at_display": "2026-08-29 17:38 UTC",
-  "issued_at_utc": "2026-08-29T17:38:47.122388+00:00",
+  "issued_at_display": "2026-08-30 13:51 UTC",
+  "issued_at_utc": "2026-08-30T13:51:59.712586+00:00",
   "live_state": {
     "official": {
       "holdings": [

@@ -139,6 +139,28 @@ with tabs[1]:
     comparison["CAGR"] = comparison["cagr"].map(pct); comparison["Ann. Vol"] = comparison["ann_vol"].map(pct); comparison["Excess Sharpe"] = comparison["excess_sharpe"].map(lambda x: f"{x:.2f}"); comparison["Max DD"] = comparison["max_drawdown"].map(pct)
     render_table(comparison[["Series", "CAGR", "Ann. Vol", "Excess Sharpe", "Max DD"]])
 
+
+    # F2R_ANNUAL_RETURN_TABLE_START
+    annual_table = pd.DataFrame(perf["holding_annual_returns"]).copy()
+    annual_table = annual_table.sort_values("year", ascending=False)
+    annual_table["Annual Return"] = annual_table["return"].map(lambda x: pct(x))
+    annual_table = annual_table.rename(columns={"year": "Year"})[["Year", "Annual Return"]]
+    st.markdown(
+        '<div class="section-head"><div><div class="sk">Calendar returns</div>'
+        '<div class="stitle">Holding-year annual returns</div></div>'
+        '<div class="snote">Returns attributed to realized holding month · signal/origin + 1</div></div>',
+        unsafe_allow_html=True,
+    )
+    render_table(annual_table, history=True)
+    st.markdown(
+        '<div class="public-note">The underlying research series retains its signal-origin month for provenance. '
+        'This calendar table re-attributes each monthly return to the subsequent realized holding month, '
+        'consistent with the first-common-trading-day-close execution contract.</div>',
+        unsafe_allow_html=True,
+    )
+    # F2R_ANNUAL_RETURN_TABLE_END
+
+
 with tabs[2]:
     hm = history["metrics"]
     st.markdown('<div class="section-head"><div><div class="sk">Allocation history</div><div class="stitle">Certified historical target path</div></div><div class="snote">Research signal-month targets · not execution records</div></div>', unsafe_allow_html=True)
