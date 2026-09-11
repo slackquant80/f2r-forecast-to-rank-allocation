@@ -1,11 +1,7 @@
-# Forecast-to-Rank Allocation — Public Deployment Artifact
+# Forecast-to-Rank Allocation (F2R)
 
-Public-safe deployment repository for the Forecast-to-Rank Allocation (F2R) Portfolio Strategy System.
+Public deployment artifact for the current Forecast-to-Rank Allocation model-portfolio system.
 
-This repository is a controlled presentation artifact, not the canonical research project and not an internal operating archive.
+F2R combines conventional machine-learning forecasts with pretrained time-series intelligence at a common cross-sectional rank-consensus layer, then maps the final ordering into a monthly Top-4 equal-weight portfolio.
 
-Run locally:
-
-`streamlit run src/dashboard/public_app.py`
-
-Historical performance shown in the application is research/backtest evidence. Intramonth Preview is provisional and has no execution or performance authority.
+The deployed dashboard is generated from a validated public-safe snapshot. It does not fit models, access private local paths, or claim to be an audited brokerage-account record.
