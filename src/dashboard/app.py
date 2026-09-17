@@ -49,7 +49,7 @@ def holding_grid(holdings,preview=False):
                 unsafe_allow_html=True)
 
 d=load_state()
-system=d["system"]; live=d["live_state"]; perf=d["completed_performance"]; hist=d["historical_targets"]
+system=d["system"]; live=d["live_state"]; perf=d["completed_performance"]; comp=d.get("benchmark_comparison",{}); hist=d["historical_targets"]
 off=live["official"]; pre=live["preview"]; trans=live["transition"]; mtd=live["current_mtd"]
 
 st.set_page_config(page_title="F2R · Forecast-to-Rank Allocation",page_icon="📈",layout="wide",initial_sidebar_state="collapsed")
@@ -64,7 +64,7 @@ html,body,[class*="css"]{font-family:Inter,ui-sans-serif,-apple-system,BlinkMacS
 .section-head{display:flex;align-items:end;justify-content:space-between;gap:1rem;margin:2rem 0 .8rem}.stitle{font-size:1.52rem;font-weight:790;letter-spacing:-.035em}.snote{font-size:.68rem;color:#6d7d89}.decision{background:#0f1821;border:1px solid #22313d;border-radius:12px;padding:1rem}.decision.official{border-top:3px solid #43b4d9}.decision.preview{border-top:3px solid #d0a03a}.decision-head{display:flex;justify-content:space-between;align-items:center;margin:.35rem 0 .8rem}.decision-title{font-size:1.13rem;font-weight:800}.decision-date{font-size:.66rem;color:#71818d}.holding{background:#09131b;border:1px solid #20303b;border-radius:9px;padding:.78rem}.holding.official{border-top:2px solid #43b4d9}.holding.preview{border-top:2px solid #d0a03a}.rank{font-size:.54rem;color:#687985;letter-spacing:.1em;font-weight:800}.asset{font-size:1.25rem;font-weight:850;margin:.42rem 0}.weight{font-size:.63rem;color:#70818e}.authority{font-size:.66rem;color:#758692;margin-top:.72rem}.transition{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:.65rem;margin-top:.75rem}.enter{border-color:#285d40}.leave{border-color:#6b3f39}
 .arch{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.65rem}.step{background:#0e1720;border:1px solid #22313d;border-radius:10px;padding:1rem}.step-n{font-size:.55rem;color:#71818d;letter-spacing:.11em;font-weight:800}.step-t{font-size:.9rem;font-weight:800;margin:.45rem 0}.step-d{font-size:.66rem;color:#73838f;line-height:1.5}
 .f2r-table-wrap{overflow:auto;border:1px solid #22313d;border-radius:10px;background:#0e1720;margin-top:.55rem;max-height:560px}table.f2r-table{width:100%;border-collapse:collapse;font-size:.74rem;color:#dfe6ea}table.f2r-table th{position:sticky;top:0;background:#111c25;color:#83929d;font-size:.58rem;letter-spacing:.075em;text-transform:uppercase;padding:.7rem;border-bottom:1px solid #22313d;text-align:center;white-space:nowrap}table.f2r-table td{padding:.65rem .7rem;border-bottom:1px solid #1b2933;text-align:center;white-space:nowrap}
-.note{border:1px solid #22313d;background:#0d1720;border-radius:10px;padding:.9rem;color:#82919c;font-size:.71rem;line-height:1.55}.public-note{border-left:3px solid #376e89;background:#0b1821;border-radius:7px;padding:.9rem 1rem;color:#84949f;font-size:.72rem;line-height:1.55}
+.note{border:1px solid #22313d;background:#0d1720;border-radius:10px;padding:.9rem;color:#82919c;font-size:.71rem;line-height:1.55}.public-note{border-left:3px solid #376e89;background:#0b1821;border-radius:7px;padding:.9rem 1rem;color:#84949f;font-size:.72rem;line-height:1.55}.benchmark-note{border:1px solid #22313d;border-left:3px solid #376e89;background:#0d1720;border-radius:8px;padding:.8rem .9rem;color:#84949f;font-size:.7rem;line-height:1.55;margin:.55rem 0 .75rem}.benchmark-note b{color:#dfe7ec}
 [data-baseweb="tab-list"]{gap:1.35rem;border-bottom:1px solid #172630}button[data-baseweb="tab"]{padding:.75rem 0;color:#677783}button[data-baseweb="tab"][aria-selected="true"]{color:#f15b59;border-bottom:2px solid #f15b59}
 @media(max-width:1050px){.block-container{padding-left:1rem;padding-right:1rem}.health,.metrics,.boundary{grid-template-columns:repeat(2,1fr)}.arch,.transition{grid-template-columns:1fr 1fr}}
 </style>
@@ -123,6 +123,25 @@ with tabs[1]:
     st.markdown(f'<div class="section-head"><div><div class="sk">Completed current-model history</div><div class="stitle">Performance & risk</div></div><div class="snote">completed through {perf["as_of_date"]} · Current MTD excluded</div></div>',unsafe_allow_html=True)
     st.markdown(f'<div class="public-note"><strong>Clock:</strong> completed performance ends {perf["as_of_date"]}. Cumulative wealth and drawdown below use the daily completed net path. Current {mtd["holding_month"]} MTD ({pct(mtd["mtd_return"])}) through {mtd["as_of_date"]} is shown separately above and is not included below.</div>',unsafe_allow_html=True)
     st.markdown(f'<div class="metrics"><div class="metric"><div class="ml">Completed YTD</div><div class="mv">{pct(completed_ytd)}</div><div class="ms">through {perf["as_of_date"]}</div></div><div class="metric"><div class="ml">CAGR</div><div class="mv">{pct(m["cagr"])}</div><div class="ms">{perf["coverage"]}</div></div><div class="metric"><div class="ml">Ann. volatility</div><div class="mv">{pct(m["ann_vol"])}</div><div class="ms">Daily · 252D</div></div><div class="metric"><div class="ml">Sharpe</div><div class="mv">{num(m["sharpe_rf0"])}</div><div class="ms">RF = 0</div></div><div class="metric"><div class="ml">Max drawdown</div><div class="mv">{pct(m["max_drawdown"])}</div><div class="ms">Current model history</div></div><div class="metric"><div class="ml">Calmar</div><div class="mv">{num(m["calmar"])}</div><div class="ms">CAGR / |MDD|</div></div></div>',unsafe_allow_html=True)
+    if not comp or not comp.get("summary"):
+        st.error("Daily reference benchmark comparison is unavailable.")
+        st.stop()
+    if comp.get("frequency") != "DAILY" or int(comp.get("annualization_days",0)) != 252:
+        st.error("Reference benchmark frequency contract mismatch.")
+        st.stop()
+    st.markdown('<div class="section-head"><div><div class="sk">Completed daily comparison</div><div class="stitle">F2R versus reference benchmarks</div></div><div class="snote">Daily completed net paths · 252D annualization</div></div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="benchmark-note"><b>Performance comparison:</b> {comp["support_start"]} → {comp["support_end"]} · {comp.get("daily_observations",0):,} daily observations · {comp["months"]} completed months. EW11 and SPY / AGG 60 / 40 are reference comparators only; F2R is not managed as a benchmark-relative mandate.</div>',unsafe_allow_html=True)
+    summary=pd.DataFrame([{
+        "Series":r["series"],
+        "Cumulative":pct(r.get("cumulative_return")),
+        "CAGR":pct(r.get("cagr")),
+        "Ann. Vol":pct(r.get("ann_vol")),
+        "Sharpe (RF=0)":num(r.get("sharpe_rf0")),
+        "Max DD":pct(r.get("max_drawdown")),
+        "Calmar":num(r.get("calmar")),
+    } for r in comp["summary"]])
+    table(summary)
+    st.markdown('<div style="height:1rem"></div>',unsafe_allow_html=True)
     growth=pd.DataFrame(perf["growth_series"]); growth["dt"]=pd.to_datetime(growth["date"])
     gc=alt.Chart(growth).mark_line(strokeWidth=2).encode(x=alt.X("dt:T",title=None),y=alt.Y("growth:Q",title="Growth of $1"),tooltip=[alt.Tooltip("date:N",title="Date"),alt.Tooltip("growth:Q",format=".2f")])
     st.altair_chart(dark_chart(gc,330),use_container_width=True)
