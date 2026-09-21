@@ -80,7 +80,7 @@ st.markdown(f'<div class="hero"><div class="eyebrow">Model portfolio</div><div c
 st.markdown(
     f'<div class="health"><div class="cell"><div class="hl">Official Signal</div><div class="hv">{off["signal_period"]}</div><div class="hs">Finalized month-end decision</div></div>'
     f'<div class="cell"><div class="hl">Current Holding</div><div class="hv">{off_holding}</div><div class="hs">Official portfolio now in force</div></div>'
-    f'<div class="cell"><div class="hl">Current MTD</div><div class="hv">{pct(mtd["mtd_return"])}</div><div class="hs">through {mtd["as_of_date"]} · separate from completed history</div></div>'
+    f'<div class="cell"><div class="hl">Current MTD</div><div class="hv">{pct(mtd["mtd_return"])}</div><div class="hs">{perf["support_end"]} → {mtd["as_of_date"]} · provisional · execution-day stitched · separate from completed history</div></div>'
     f'<div class="cell"><div class="hl">Preview Signal</div><div class="hv">{pre_period}</div><div class="hs">Provisional · NOT EXECUTED</div></div>'
     f'<div class="cell"><div class="hl">Preview Holding</div><div class="hv">{pre_holding}</div><div class="hs">Candidate next holding month</div></div>'
     f'<div class="cell"><div class="hl">Market Data Through</div><div class="hv">{pre_cut}</div><div class="hs">Source freshness clock</div></div></div>',
@@ -120,9 +120,9 @@ with tabs[1]:
     latest_completed_year=str(perf["completed_through_month"])[:4]
     ytd_rows=monthly_completed.loc[monthly_completed["year"]==latest_completed_year,"return"].astype(float)
     completed_ytd=float((1.0+ytd_rows).prod()-1.0) if len(ytd_rows) else None
-    st.markdown(f'<div class="section-head"><div><div class="sk">Completed current-model history</div><div class="stitle">Performance & risk</div></div><div class="snote">completed through {perf["as_of_date"]} · Current MTD excluded</div></div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="section-head"><div><div class="sk">Completed current-model history</div><div class="stitle">Performance & risk</div></div><div class="snote">exact support {perf["support_start"]} → {perf["support_end"]} · Current MTD excluded</div></div>',unsafe_allow_html=True)
     st.markdown(f'<div class="public-note"><strong>Clock:</strong> completed performance ends {perf["as_of_date"]}. Cumulative wealth and drawdown below use the daily completed net path. Current {mtd["holding_month"]} MTD ({pct(mtd["mtd_return"])}) through {mtd["as_of_date"]} is shown separately above and is not included below.</div>',unsafe_allow_html=True)
-    st.markdown(f'<div class="metrics"><div class="metric"><div class="ml">Completed YTD</div><div class="mv">{pct(completed_ytd)}</div><div class="ms">through {perf["as_of_date"]}</div></div><div class="metric"><div class="ml">CAGR</div><div class="mv">{pct(m["cagr"])}</div><div class="ms">{perf["coverage"]}</div></div><div class="metric"><div class="ml">Ann. volatility</div><div class="mv">{pct(m["ann_vol"])}</div><div class="ms">Daily · 252D</div></div><div class="metric"><div class="ml">Sharpe</div><div class="mv">{num(m["sharpe_rf0"])}</div><div class="ms">RF = 0</div></div><div class="metric"><div class="ml">Max drawdown</div><div class="mv">{pct(m["max_drawdown"])}</div><div class="ms">Current model history</div></div><div class="metric"><div class="ml">Calmar</div><div class="mv">{num(m["calmar"])}</div><div class="ms">CAGR / |MDD|</div></div></div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="metrics"><div class="metric"><div class="ml">Completed YTD</div><div class="mv">{pct(completed_ytd)}</div><div class="ms">{latest_completed_year}-01-01 → {perf["support_end"]}</div></div><div class="metric"><div class="ml">CAGR</div><div class="mv">{pct(m["cagr"])}</div><div class="ms">{perf["support_start"]} → {perf["support_end"]}</div></div><div class="metric"><div class="ml">Ann. volatility</div><div class="mv">{pct(m["ann_vol"])}</div><div class="ms">{perf["support_start"]} → {perf["support_end"]} · daily 252D</div></div><div class="metric"><div class="ml">Sharpe</div><div class="mv">{num(m["sharpe_rf0"])}</div><div class="ms">{perf["support_start"]} → {perf["support_end"]} · RF=0</div></div><div class="metric"><div class="ml">Max drawdown</div><div class="mv">{pct(m["max_drawdown"])}</div><div class="ms">{perf["support_start"]} → {perf["support_end"]}</div></div><div class="metric"><div class="ml">Calmar</div><div class="mv">{num(m["calmar"])}</div><div class="ms">{perf["support_start"]} → {perf["support_end"]}</div></div></div>',unsafe_allow_html=True)
     if not comp or not comp.get("summary"):
         st.error("Daily reference benchmark comparison is unavailable.")
         st.stop()
@@ -149,18 +149,19 @@ with tabs[1]:
     dc=alt.Chart(dd).mark_area(opacity=.72).encode(x=alt.X("dt:T",title=None),y=alt.Y("drawdown:Q",title="Drawdown",axis=alt.Axis(format="%")),tooltip=[alt.Tooltip("date:N"),alt.Tooltip("drawdown:Q",format=".1%")])
     st.altair_chart(dark_chart(dc,220),use_container_width=True)
     annual=pd.DataFrame(perf["annual_returns"]); annual["Return"]=annual["return"].map(lambda x:pct(x))
+    st.caption(f"Annual / completed-YTD table · full available support {perf['support_start']} → {perf['support_end']}; {latest_completed_year} YTD = {latest_completed_year}-01-01 → {perf['support_end']}.")
     table(annual[["period","Return"]].rename(columns={"period":"Period"}))
     st.markdown(f'<div class="public-note">{perf["performance_note"]}</div>',unsafe_allow_html=True)
 
 with tabs[2]:
     hm=hist["metrics"]
-    st.markdown('<div class="section-head"><div><div class="sk">Current-model allocation history</div><div class="stitle">Portfolio target history</div></div><div class="snote">Preview excluded</div></div>',unsafe_allow_html=True)
-    st.markdown(f'<div class="metrics"><div class="metric"><div class="ml">Coverage</div><div class="mv">{hm["months"]} mo</div><div class="ms">{hist["coverage"]}</div></div><div class="metric"><div class="ml">Target records</div><div class="mv">{hm["target_rows"]}</div><div class="ms">Four per signal month</div></div><div class="metric"><div class="ml">Avg changes</div><div class="mv">{hm["avg_changes"]:.2f}</div><div class="ms">Entering assets</div></div><div class="metric"><div class="ml">No-change months</div><div class="mv">{hm["no_change_months"]}</div><div class="ms">Same Top-4 set</div></div><div class="metric"><div class="ml">Most selected</div><div class="mv">{hm["most_selected_asset"]}</div><div class="ms">{hm["most_selected_months"]} months</div></div><div class="metric"><div class="ml">Target weight</div><div class="mv">25%</div><div class="ms">Equal weight</div></div></div>',unsafe_allow_html=True)
-    recent=pd.DataFrame(hist["recent_12"]).rename(columns={"month":"Signal Month","rank1":"Rank 1","rank2":"Rank 2","rank3":"Rank 3","rank4":"Rank 4","changes":"Changes"})
-    table(recent[["Signal Month","Rank 1","Rank 2","Rank 3","Rank 4","Changes"]])
-    with st.expander("Full current-model target history"):
-        full=pd.DataFrame(hist["full_history"]).sort_values("month",ascending=False).rename(columns={"month":"Signal Month","rank1":"Rank 1","rank2":"Rank 2","rank3":"Rank 3","rank4":"Rank 4","changes":"Changes"})
-        table(full[["Signal Month","Rank 1","Rank 2","Rank 3","Rank 4","Changes"]])
+    st.markdown('<div class="section-head"><div><div class="sk">Performance-linked allocation history</div><div class="stitle">Portfolio target history</div></div><div class="snote">Completed path only · Current MTD / Preview excluded</div></div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="metrics"><div class="metric"><div class="ml">Coverage</div><div class="mv">{hm["months"]} mo</div><div class="ms">{hist["coverage"]}</div></div><div class="metric"><div class="ml">Target records</div><div class="mv">{hm["target_rows"]}</div><div class="ms">Exact completed-path lineage</div></div><div class="metric"><div class="ml">Avg changes</div><div class="mv">{hm["avg_changes"]:.2f}</div><div class="ms">Entering assets</div></div><div class="metric"><div class="ml">No-change months</div><div class="mv">{hm["no_change_months"]}</div><div class="ms">Same Top-4 set</div></div><div class="metric"><div class="ml">Most selected</div><div class="mv">{hm["most_selected_asset"]}</div><div class="ms">{hm["most_selected_months"]} months</div></div><div class="metric"><div class="ml">Target weight</div><div class="mv">25%</div><div class="ms">Equal weight</div></div></div>',unsafe_allow_html=True)
+    recent=pd.DataFrame(hist["recent_12"]).rename(columns={"month":"Signal Month","holding_month":"Holding Month","execution_date":"Execution Close","rank1":"Rank 1","rank2":"Rank 2","rank3":"Rank 3","rank4":"Rank 4","changes":"Changes"})
+    table(recent[["Signal Month","Holding Month","Execution Close","Rank 1","Rank 2","Rank 3","Rank 4","Changes"]])
+    with st.expander("Full performance-linked target history"):
+        full=pd.DataFrame(hist["full_history"]).sort_values("month",ascending=False).rename(columns={"month":"Signal Month","holding_month":"Holding Month","execution_date":"Execution Close","rank1":"Rank 1","rank2":"Rank 2","rank3":"Rank 3","rank4":"Rank 4","changes":"Changes"})
+        table(full[["Signal Month","Holding Month","Execution Close","Rank 1","Rank 2","Rank 3","Rank 4","Changes"]])
     st.markdown(f'<div class="public-note">{hist["history_note"]}</div>',unsafe_allow_html=True)
 
 with tabs[3]:
