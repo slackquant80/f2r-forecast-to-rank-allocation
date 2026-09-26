@@ -8,6 +8,8 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
+from portfolio_history_export import F2R_UNIVERSE, build_portfolio_history, display_percent, portfolio_history_xlsx_bytes
+
 STATE = Path(__file__).resolve().parent / "public_data" / "f2r_public_state.json"
 
 def pct(x, digits=1):
@@ -38,6 +40,35 @@ def table(df):
     html=df.to_html(index=False,border=0,classes="f2r-table",escape=True)
     st.markdown(f'<div class="f2r-table-wrap">{html}</div>',unsafe_allow_html=True)
 
+def history_table(df):
+    headers=list(df.columns)
+    parts=['<div class="f2r-table-wrap history"><table class="f2r-table"><thead><tr>']
+    parts.extend(f'<th>{h}</th>' for h in headers)
+    parts.append('</tr></thead><tbody>')
+    for _, row in df.iterrows():
+        status=str(row.get("Status", ""))
+        cls="preview-row" if status.startswith("PREVIEW") else ("official-row" if status=="OFFICIAL" else "")
+        parts.append(f'<tr class="{cls}">')
+        for h in headers:
+            val=str(row[h])
+            if h=="Status" and status.startswith("PREVIEW"):
+                val='<span class="status-preview">PREVIEW</span>'
+            elif h=="Status" and status=="OFFICIAL":
+                val='<span class="status-official">OFFICIAL</span>'
+            parts.append(f'<td>{val}</td>')
+        parts.append('</tr>')
+    parts.append('</tbody></table></div>')
+    st.markdown(''.join(parts),unsafe_allow_html=True)
+
+def public_history_long(hist_doc):
+    rows=[]
+    for rec in hist_doc.get("full_history", []):
+        for rank in range(1,5):
+            asset=str(rec.get(f"rank{rank}") or "")
+            if asset:
+                rows.append({"signal_month":str(rec.get("month") or ""),"holding_month":str(rec.get("holding_month") or ""),"asset_id":asset,"target_weight":0.25,"rank":rank})
+    return pd.DataFrame(rows)
+
 def holding_grid(holdings,preview=False):
     cols=st.columns(4)
     for col,h in zip(cols,holdings):
@@ -52,6 +83,12 @@ d=load_state()
 system=d["system"]; live=d["live_state"]; perf=d["completed_performance"]; comp=d.get("benchmark_comparison",{}); hist=d["historical_targets"]
 off=live["official"]; pre=live["preview"]; trans=live["transition"]; mtd=live["current_mtd"]
 
+# F2R_PUBLIC_LOCAL_PARITY_V1: same fixed-universe reader view used by the local operator.
+_hist_long=public_history_long(hist)
+portfolio_history_wide=build_portfolio_history(_hist_long,off,pre)
+portfolio_history_display=display_percent(portfolio_history_wide)
+portfolio_history_xlsx=portfolio_history_xlsx_bytes(portfolio_history_wide)
+
 st.set_page_config(page_title="F2R · Forecast-to-Rank Allocation",page_icon="📈",layout="wide",initial_sidebar_state="collapsed")
 st.markdown(r'''
 <style>
@@ -65,6 +102,17 @@ html,body,[class*="css"]{font-family:Inter,ui-sans-serif,-apple-system,BlinkMacS
 .arch{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.65rem}.step{background:#0e1720;border:1px solid #22313d;border-radius:10px;padding:1rem}.step-n{font-size:.55rem;color:#71818d;letter-spacing:.11em;font-weight:800}.step-t{font-size:.9rem;font-weight:800;margin:.45rem 0}.step-d{font-size:.66rem;color:#73838f;line-height:1.5}
 .f2r-table-wrap{overflow:auto;border:1px solid #22313d;border-radius:10px;background:#0e1720;margin-top:.55rem;max-height:560px}table.f2r-table{width:100%;border-collapse:collapse;font-size:.74rem;color:#dfe6ea}table.f2r-table th{position:sticky;top:0;background:#111c25;color:#83929d;font-size:.58rem;letter-spacing:.075em;text-transform:uppercase;padding:.7rem;border-bottom:1px solid #22313d;text-align:center;white-space:nowrap}table.f2r-table td{padding:.65rem .7rem;border-bottom:1px solid #1b2933;text-align:center;white-space:nowrap}
 .note{border:1px solid #22313d;background:#0d1720;border-radius:10px;padding:.9rem;color:#82919c;font-size:.71rem;line-height:1.55}.public-note{border-left:3px solid #376e89;background:#0b1821;border-radius:7px;padding:.9rem 1rem;color:#84949f;font-size:.72rem;line-height:1.55}.benchmark-note{border:1px solid #22313d;border-left:3px solid #376e89;background:#0d1720;border-radius:8px;padding:.8rem .9rem;color:#84949f;font-size:.7rem;line-height:1.55;margin:.55rem 0 .75rem}.benchmark-note b{color:#dfe7ec}
+.f2r-table-wrap.history{width:100%;max-width:none;overflow:auto;max-height:590px}
+.f2r-table-wrap.history table.f2r-table{table-layout:auto;min-width:1180px;width:100%}
+.f2r-table-wrap.history table.f2r-table th,.f2r-table-wrap.history table.f2r-table td{min-width:72px}
+.f2r-table-wrap.history table.f2r-table th:nth-child(1),.f2r-table-wrap.history table.f2r-table td:nth-child(1),.f2r-table-wrap.history table.f2r-table th:nth-child(2),.f2r-table-wrap.history table.f2r-table td:nth-child(2),.f2r-table-wrap.history table.f2r-table th:nth-child(3),.f2r-table-wrap.history table.f2r-table td:nth-child(3){min-width:94px}
+.f2r-table-wrap.history tr.preview-row td{background:#251d0f;border-bottom-color:#5f4a22}
+.f2r-table-wrap.history tr.official-row td{background:#0d2020;border-bottom-color:#285d52}
+.status-preview,.status-official{display:inline-block;border-radius:999px;padding:.18rem .45rem;font-size:.61rem;font-weight:800}
+.status-preview{background:#2d220f;border:1px solid #785a1f;color:#e8b957}
+.status-official{background:#0d2922;border:1px solid #25624f;color:#70d6b2}
+[data-testid="stDownloadButton"] button{background:#0f1821!important;color:#dfe7ec!important;border:1px solid #2a3a46!important;border-radius:8px!important;font-weight:700!important}
+[data-testid="stDownloadButton"] button:hover{background:#14212b!important;border-color:#4a7185!important;color:#fff!important}
 [data-baseweb="tab-list"]{gap:1.35rem;border-bottom:1px solid #172630}button[data-baseweb="tab"]{padding:.75rem 0;color:#677783}button[data-baseweb="tab"][aria-selected="true"]{color:#f15b59;border-bottom:2px solid #f15b59}
 @media(max-width:1050px){.block-container{padding-left:1rem;padding-right:1rem}.health,.metrics,.boundary{grid-template-columns:repeat(2,1fr)}.arch,.transition{grid-template-columns:1fr 1fr}}
 </style>
@@ -83,7 +131,7 @@ st.markdown(
     f'<div class="cell"><div class="hl">Current MTD</div><div class="hv">{pct(mtd["mtd_return"])}</div><div class="hs">{perf["support_end"]} → {mtd["as_of_date"]} · provisional · execution-day stitched · separate from completed history</div></div>'
     f'<div class="cell"><div class="hl">Preview Signal</div><div class="hv">{pre_period}</div><div class="hs">Provisional · NOT EXECUTED</div></div>'
     f'<div class="cell"><div class="hl">Preview Holding</div><div class="hv">{pre_holding}</div><div class="hs">Candidate next holding month</div></div>'
-    f'<div class="cell"><div class="hl">Market Data Through</div><div class="hv">{pre_cut}</div><div class="hs">Source freshness clock</div></div></div>',
+    f'<div class="cell"><div class="hl">Market Data Through</div><div class="hv">{pre_cut}</div><div class="hs">Latest Preview data date</div></div></div>',
     unsafe_allow_html=True)
 
 tabs=st.tabs(["Current Portfolio","Performance","Portfolio History","System"])
@@ -120,7 +168,8 @@ with tabs[1]:
     latest_completed_year=str(perf["completed_through_month"])[:4]
     ytd_rows=monthly_completed.loc[monthly_completed["year"]==latest_completed_year,"return"].astype(float)
     completed_ytd=float((1.0+ytd_rows).prod()-1.0) if len(ytd_rows) else None
-    st.markdown(f'<div class="section-head"><div><div class="sk">Completed current-model history</div><div class="stitle">Performance & risk</div></div><div class="snote">exact support {perf["support_start"]} → {perf["support_end"]} · Current MTD excluded</div></div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="section-head"><div><div class="sk">Completed current-model history</div><div class="stitle">Performance & risk</div></div><div class="snote">Completed period {perf["support_start"]} → {perf["support_end"]} · Current MTD excluded</div></div>',unsafe_allow_html=True)
+    st.markdown("<div class='public-note'><strong>Performance record:</strong> This standalone dashboard uses F2R's completed current-model history from 2017-05 onward. PDS may show a longer current-definition reconstruction for cross-system comparison; that is a separate research series and does not replace this F2R record.</div>",unsafe_allow_html=True)
     st.markdown(f'<div class="public-note"><strong>Clock:</strong> completed performance ends {perf["as_of_date"]}. Cumulative wealth and drawdown below use the daily completed net path. Current {mtd["holding_month"]} MTD ({pct(mtd["mtd_return"])}) through {mtd["as_of_date"]} is shown separately above and is not included below.</div>',unsafe_allow_html=True)
     st.markdown(f'<div class="metrics"><div class="metric"><div class="ml">Completed YTD</div><div class="mv">{pct(completed_ytd)}</div><div class="ms">{latest_completed_year}-01-01 → {perf["support_end"]}</div></div><div class="metric"><div class="ml">CAGR</div><div class="mv">{pct(m["cagr"])}</div><div class="ms">{perf["support_start"]} → {perf["support_end"]}</div></div><div class="metric"><div class="ml">Ann. volatility</div><div class="mv">{pct(m["ann_vol"])}</div><div class="ms">{perf["support_start"]} → {perf["support_end"]} · daily 252D</div></div><div class="metric"><div class="ml">Sharpe</div><div class="mv">{num(m["sharpe_rf0"])}</div><div class="ms">{perf["support_start"]} → {perf["support_end"]} · RF=0</div></div><div class="metric"><div class="ml">Max drawdown</div><div class="mv">{pct(m["max_drawdown"])}</div><div class="ms">{perf["support_start"]} → {perf["support_end"]}</div></div><div class="metric"><div class="ml">Calmar</div><div class="mv">{num(m["calmar"])}</div><div class="ms">{perf["support_start"]} → {perf["support_end"]}</div></div></div>',unsafe_allow_html=True)
     if not comp or not comp.get("summary"):
@@ -143,26 +192,51 @@ with tabs[1]:
     table(summary)
     st.markdown('<div style="height:1rem"></div>',unsafe_allow_html=True)
     growth=pd.DataFrame(perf["growth_series"]); growth["dt"]=pd.to_datetime(growth["date"])
-    gc=alt.Chart(growth).mark_line(strokeWidth=2).encode(x=alt.X("dt:T",title=None),y=alt.Y("growth:Q",title="Growth of $1"),tooltip=[alt.Tooltip("date:N",title="Date"),alt.Tooltip("growth:Q",format=".2f")])
+    gc=alt.Chart(growth).mark_line(strokeWidth=2).encode(x=alt.X("dt:T",title=None,axis=alt.Axis(format="%Y",tickCount=10,labelAngle=0)),y=alt.Y("growth:Q",title="Growth of $1"),tooltip=[alt.Tooltip("date:N",title="Date"),alt.Tooltip("growth:Q",format=".2f")])
     st.altair_chart(dark_chart(gc,330),use_container_width=True)
     dd=pd.DataFrame(perf["drawdown_series"]); dd["dt"]=pd.to_datetime(dd["date"])
-    dc=alt.Chart(dd).mark_area(opacity=.72).encode(x=alt.X("dt:T",title=None),y=alt.Y("drawdown:Q",title="Drawdown",axis=alt.Axis(format="%")),tooltip=[alt.Tooltip("date:N"),alt.Tooltip("drawdown:Q",format=".1%")])
+    dc=alt.Chart(dd).mark_area(opacity=.72).encode(x=alt.X("dt:T",title=None,axis=alt.Axis(format="%Y",tickCount=10,labelAngle=0)),y=alt.Y("drawdown:Q",title="Drawdown",axis=alt.Axis(format="%")),tooltip=[alt.Tooltip("date:N"),alt.Tooltip("drawdown:Q",format=".1%")])
     st.altair_chart(dark_chart(dc,220),use_container_width=True)
     annual=pd.DataFrame(perf["annual_returns"]); annual["Return"]=annual["return"].map(lambda x:pct(x))
-    st.caption(f"Annual / completed-YTD table · full available support {perf['support_start']} → {perf['support_end']}; {latest_completed_year} YTD = {latest_completed_year}-01-01 → {perf['support_end']}.")
+    st.caption(f"Annual / completed-YTD table · completed performance period {perf['support_start']} → {perf['support_end']}; {latest_completed_year} YTD = {latest_completed_year}-01-01 → {perf['support_end']}.")
     table(annual[["period","Return"]].rename(columns={"period":"Period"}))
     st.markdown(f'<div class="public-note">{perf["performance_note"]}</div>',unsafe_allow_html=True)
 
 with tabs[2]:
     hm=hist["metrics"]
-    st.markdown('<div class="section-head"><div><div class="sk">Performance-linked allocation history</div><div class="stitle">Portfolio target history</div></div><div class="snote">Completed path only · Current MTD / Preview excluded</div></div>',unsafe_allow_html=True)
-    st.markdown(f'<div class="metrics"><div class="metric"><div class="ml">Coverage</div><div class="mv">{hm["months"]} mo</div><div class="ms">{hist["coverage"]}</div></div><div class="metric"><div class="ml">Target records</div><div class="mv">{hm["target_rows"]}</div><div class="ms">Exact completed-path lineage</div></div><div class="metric"><div class="ml">Avg changes</div><div class="mv">{hm["avg_changes"]:.2f}</div><div class="ms">Entering assets</div></div><div class="metric"><div class="ml">No-change months</div><div class="mv">{hm["no_change_months"]}</div><div class="ms">Same Top-4 set</div></div><div class="metric"><div class="ml">Most selected</div><div class="mv">{hm["most_selected_asset"]}</div><div class="ms">{hm["most_selected_months"]} months</div></div><div class="metric"><div class="ml">Target weight</div><div class="mv">25%</div><div class="ms">Equal weight</div></div></div>',unsafe_allow_html=True)
-    recent=pd.DataFrame(hist["recent_12"]).rename(columns={"month":"Signal Month","holding_month":"Holding Month","execution_date":"Execution Close","rank1":"Rank 1","rank2":"Rank 2","rank3":"Rank 3","rank4":"Rank 4","changes":"Changes"})
-    table(recent[["Signal Month","Holding Month","Execution Close","Rank 1","Rank 2","Rank 3","Rank 4","Changes"]])
-    with st.expander("Full performance-linked target history"):
-        full=pd.DataFrame(hist["full_history"]).sort_values("month",ascending=False).rename(columns={"month":"Signal Month","holding_month":"Holding Month","execution_date":"Execution Close","rank1":"Rank 1","rank2":"Rank 2","rank3":"Rank 3","rank4":"Rank 4","changes":"Changes"})
-        table(full[["Signal Month","Holding Month","Execution Close","Rank 1","Rank 2","Rank 3","Rank 4","Changes"]])
-    st.markdown(f'<div class="public-note">{hist["history_note"]}</div>',unsafe_allow_html=True)
+    full_hist=pd.DataFrame(hist.get("full_history", []))
+    last_completed_holding=str(full_hist["holding_month"].max()) if not full_hist.empty else "—"
+    st.markdown('<div class="section-head"><div><div class="sk">Portfolio history</div><div class="stitle">Allocation & return history</div></div><div class="snote">Completed target history + current Official + clearly labeled Preview</div></div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="public-note">Historical rows reproduce completed performance through {perf["support_end"]}. Current Official and provisional Preview are shown in the same fixed 11-ETF matrix for operational use; neither is included in completed performance.</div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="metrics"><div class="metric"><div class="ml">Completed-history targets</div><div class="mv">{hm["months"]}</div><div class="ms">{hist["coverage"]}</div></div><div class="metric"><div class="ml">Completed performance</div><div class="mv">{perf["support_end"][:7]}</div><div class="ms">through {perf["support_end"]}</div></div><div class="metric"><div class="ml">Latest completed holding</div><div class="mv">{last_completed_holding}</div><div class="ms">included in completed performance</div></div><div class="metric"><div class="ml">Avg monthly replacements</div><div class="mv">{hm["avg_changes"]:.2f}</div><div class="ms">names changed vs. prior target</div></div><div class="metric"><div class="ml">Most selected</div><div class="mv">{hm["most_selected_asset"]}</div><div class="ms">{hm["most_selected_months"]} completed signals</div></div><div class="metric"><div class="ml">Current official signal</div><div class="mv">{off["signal_period"]}</div><div class="ms">Holding {off_holding} · tracked in Current MTD</div></div></div>',unsafe_allow_html=True)
+
+    if not full_hist.empty:
+        assets=[]
+        for c in ["rank1","rank2","rank3","rank4"]:
+            assets.extend(full_hist[c].dropna().astype(str).tolist())
+        freq=pd.Series(assets).value_counts().reindex(F2R_UNIVERSE,fill_value=0).rename_axis("Asset").reset_index(name="Selected months")
+        freq["Selection rate"]=freq["Selected months"]/max(1,int(hm["months"]))
+        change_df=full_hist[["month","changes"]].copy(); change_df["dt"]=pd.to_datetime(change_df["month"]+"-01")
+        lcol,rcol=st.columns([1.15,1.0])
+        with lcol:
+            st.markdown('<div class="section-head"><div><div class="sk">Selection persistence</div><div class="stitle">How often each asset was selected in the Top-4</div></div></div>',unsafe_allow_html=True)
+            fc=alt.Chart(freq).mark_bar().encode(x=alt.X("Asset:N",sort="-y",title=None,axis=alt.Axis(labelAngle=0)),y=alt.Y("Selection rate:Q",title="Share of months selected",axis=alt.Axis(format="%")),tooltip=[alt.Tooltip("Asset:N"),alt.Tooltip("Selected months:Q",format="d"),alt.Tooltip("Selection rate:Q",format=".1%")])
+            st.altair_chart(dark_chart(fc,245),use_container_width=True)
+        with rcol:
+            st.markdown('<div class="section-head"><div><div class="sk">Decision turnover</div><div class="stitle">Monthly changes in the selected set</div></div></div>',unsafe_allow_html=True)
+            cc=alt.Chart(change_df).mark_bar().encode(x=alt.X("dt:T",title=None,axis=alt.Axis(format="%Y",tickCount=9,labelAngle=0)),y=alt.Y("changes:Q",title="Entering assets",scale=alt.Scale(domain=[0,4]),axis=alt.Axis(tickMinStep=1)),tooltip=[alt.Tooltip("month:N",title="Signal month"),alt.Tooltip("changes:Q",format="d")])
+            st.altair_chart(dark_chart(cc,245),use_container_width=True)
+
+    st.markdown('<div class="section-head"><div><div class="sk">Recent target path</div><div class="stitle">Portfolio target history · 11-ETF universe</div></div><div class="snote">Preview first · Official second · fixed columns</div></div>',unsafe_allow_html=True)
+    history_table(portfolio_history_display.head(12))
+    dl_col,note_col=st.columns([0.22,0.78])
+    with dl_col:
+        st.download_button("Download Excel",data=portfolio_history_xlsx,file_name="F2R_Portfolio_Target_History.xlsx",mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",use_container_width=True)
+    with note_col:
+        st.caption("The workbook matches the on-screen 11-ETF matrix. Preview is provisional and excluded from realized performance.")
+    with st.expander("Full historical target record + current target states"):
+        history_table(portfolio_history_display)
+    st.markdown(f'<div class="public-note">{hist["history_note"]} Current Official and Preview are added above only as clearly labeled current states.</div>',unsafe_allow_html=True)
 
 with tabs[3]:
     st.markdown('<div class="section-head"><div><div class="sk">System identity</div><div class="stitle">Architecture and operating boundary</div></div></div>',unsafe_allow_html=True)
