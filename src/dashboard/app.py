@@ -10,6 +10,9 @@ import streamlit as st
 
 from portfolio_history_export import F2R_UNIVERSE, build_portfolio_history, display_percent, portfolio_history_xlsx_bytes
 
+PRESENTATION = json.loads((Path(__file__).resolve().parent / "reader_presentation.json").read_text(encoding="utf-8"))
+assert PRESENTATION.get("contract_id") == "F2R_SHARED_READER_SURFACE_V3"
+
 STATE = Path(__file__).resolve().parent / "public_data" / "f2r_public_state.json"
 
 def pct(x, digits=1):
@@ -90,7 +93,7 @@ system=d["system"]; live=d["live_state"]; perf=d["completed_performance"]; comp=
 off=live["official"]; pre=live["preview"]; trans=live["transition"]; mtd=live["current_mtd"]
 
 # F2R_PUBLIC_LOCAL_PARITY_V1: same fixed-universe reader view used by the local operator.
-# F2R_SHARED_READER_COPY_V2: canonical reader-facing copy shared with the local operator dashboard.
+# F2R_SHARED_READER_SURFACE_V3: canonical reader-facing presentation contract shared with the local operator dashboard.
 _hist_long=public_history_long(hist)
 portfolio_history_wide=build_portfolio_history(_hist_long,off,pre)
 portfolio_history_display=display_percent(portfolio_history_wide)
@@ -136,7 +139,7 @@ mtd_sub=(f'{perf["support_end"]} → {mtd.get("as_of_date")} · provisional · e
 mtd_clock_note=(f'Current {mtd["holding_month"]} MTD ({signed_pct2(mtd.get("mtd_return"))}) through {mtd.get("as_of_date")} is shown separately above and is not included below.'
                 if mtd_available else f'Current {mtd["holding_month"]} MTD has not opened yet; completed performance remains through {perf["support_end"]}.')
 st.markdown(f'<div class="shell"><div class="brand"><div class="mark">F2R</div><div><div class="name">Forecast-to-Rank Allocation</div><div class="desc">Portfolio Strategy System</div></div></div><div><div class="mode">CURRENT MODEL</div><div class="refresh">State issued {d["issued_at_display"]}</div></div></div>',unsafe_allow_html=True)
-st.markdown('<div class="hero"><div class="eyebrow">Model portfolio</div><div class="hero-title">Forecast-ranked cross-asset portfolio.</div><div class="hero-copy">F2R uses point-in-time own-price history across conventional machine-learning models and pretrained time-series intelligence. Their forecasts enter a common cross-asset ranking process before the monthly model portfolio is formed. The official portfolio and intramonth preview are shown separately.</div></div>',unsafe_allow_html=True)
+st.markdown(f'<div class="hero"><div class="eyebrow">{PRESENTATION["hero"]["eyebrow"]}</div><div class="hero-title">{PRESENTATION["hero"]["title"]}</div><div class="hero-copy">{PRESENTATION["hero"]["copy"]}</div></div>',unsafe_allow_html=True)
 
 st.markdown(
     f'<div class="health"><div class="cell"><div class="hl">Official Signal</div><div class="hv">{off["signal_period"]}</div><div class="hs">Finalized month-end decision</div></div>'
@@ -147,32 +150,25 @@ st.markdown(
     f'<div class="cell"><div class="hl">Market Data Through</div><div class="hv">{pre_cut}</div><div class="hs">Latest Preview data date</div></div></div>',
     unsafe_allow_html=True)
 
-tabs=st.tabs(["Current Portfolio","Performance","Portfolio History","System"])
+tabs=st.tabs(PRESENTATION["tabs"]["shared"])
 
 with tabs[0]:
-    st.markdown('<div class="section-head"><div><div class="sk">Current state</div><div class="stitle">Current model portfolio and intramonth preview</div></div><div class="snote">Blue = official · amber = preview</div></div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="section-head"><div><div class="sk">{PRESENTATION["current"]["eyebrow"]}</div><div class="stitle">{PRESENTATION["current"]["title"]}</div></div><div class="snote">{PRESENTATION["current"]["legend"]}</div></div>',unsafe_allow_html=True)
     left,right=st.columns(2)
     with left:
-        st.markdown(f'<div class="decision official"><div class="decision-head"><div class="decision-title">Official Portfolio</div><div class="decision-date">Signal {off["signal_period"]} → Holding {off_holding}</div></div>',unsafe_allow_html=True)
+        st.markdown(f'<div class="decision official"><div class="decision-head"><div class="decision-title">{PRESENTATION["current"]["official_title"]}</div><div class="decision-date">Signal {off["signal_period"]} → Holding {off_holding}</div></div>',unsafe_allow_html=True)
         holding_grid(off["holdings"],False)
-        st.markdown('<div class="authority">Current monthly model portfolio.</div></div>',unsafe_allow_html=True)
+        st.markdown(f'<div class="authority">{PRESENTATION["current"]["official_note"]}</div></div>',unsafe_allow_html=True)
     with right:
-        st.markdown(f'<div class="decision preview"><div class="decision-head"><div class="decision-title">Intramonth Preview · NOT EXECUTED</div><div class="decision-date">Signal {pre_period} → Holding {pre_holding}</div></div>',unsafe_allow_html=True)
+        st.markdown(f'<div class="decision preview"><div class="decision-head"><div class="decision-title">{PRESENTATION["current"]["preview_title"]}</div><div class="decision-date">Signal {pre_period} → Holding {pre_holding}</div></div>',unsafe_allow_html=True)
         if pre.get("available"):
             holding_grid(pre["holdings"],True)
-            st.markdown('<div class="authority">Provisional current-month model estimate; it may change before month-end.</div></div>',unsafe_allow_html=True)
+            st.markdown(f'<div class="authority">{PRESENTATION["current"]["preview_note"]}</div></div>',unsafe_allow_html=True)
         else:
             st.markdown('<div class="note">Preview unavailable.</div></div>',unsafe_allow_html=True)
     if pre.get("available"):
         st.markdown(f'<div class="transition"><div class="cell"><div class="hl">Retained</div><div class="hv">{", ".join(trans["retained"]) or "—"}</div></div><div class="cell enter"><div class="hl">Entering</div><div class="hv">{", ".join(trans["entering"]) or "—"}</div></div><div class="cell leave"><div class="hl">Leaving</div><div class="hv">{", ".join(trans["leaving"]) or "—"}</div></div></div>',unsafe_allow_html=True)
-    st.markdown('<div class="section-head"><div><div class="sk">Architecture</div><div class="stitle">From market information to portfolio decision</div></div></div>',unsafe_allow_html=True)
-    st.markdown('''<div class="arch">
-    <div class="step"><div class="step-n">01</div><div class="step-t">Market information</div><div class="step-d">Point-in-time own-price history under the common market clock.</div></div>
-    <div class="step"><div class="step-n">02</div><div class="step-t">Heterogeneous forecast engines</div><div class="step-d">Conventional ML and pretrained time-series intelligence.</div></div>
-    <div class="step"><div class="step-n">03</div><div class="step-t">Rank consensus</div><div class="step-d">Translate heterogeneous forecasts into one cross-asset decision space.</div></div>
-    <div class="step"><div class="step-n">04</div><div class="step-t">Portfolio decision</div><div class="step-d">Select the highest-ranked opportunities under the monthly Top-4 rule.</div></div>
-    <div class="step"><div class="step-n">05</div><div class="step-t">Governed performance</div><div class="step-d">Completed history stops at the last closed holding month; Current MTD remains separate.</div></div>
-    </div>''',unsafe_allow_html=True)
+
 
 with tabs[1]:
     m=perf["metrics"]
@@ -181,8 +177,8 @@ with tabs[1]:
     latest_completed_year=str(perf["completed_through_month"])[:4]
     ytd_rows=monthly_completed.loc[monthly_completed["year"]==latest_completed_year,"return"].astype(float)
     completed_ytd=float((1.0+ytd_rows).prod()-1.0) if len(ytd_rows) else None
-    st.markdown(f'<div class="section-head"><div><div class="sk">Completed current-model history</div><div class="stitle">Performance & risk</div></div><div class="snote">Completed period {perf["support_start"]} → {perf["support_end"]} · Current MTD excluded</div></div>',unsafe_allow_html=True)
-    st.markdown("<div class='public-note'><strong>Performance record:</strong> This standalone dashboard uses F2R's completed current-model history from 2017-05 onward. PDS may show a longer current-definition reconstruction of F2R for cross-system comparison; that is a separate research series and does not replace this standalone F2R record.</div>",unsafe_allow_html=True)
+    st.markdown(f'<div class="section-head"><div><div class="sk">{PRESENTATION["performance"]["eyebrow"]}</div><div class="stitle">{PRESENTATION["performance"]["title"]}</div></div><div class="snote">Completed period {perf["support_start"]} → {perf["support_end"]} · {PRESENTATION["performance"]["completed_suffix"]}</div></div>',unsafe_allow_html=True)
+    st.markdown(f"<div class='public-note'><strong>Performance record:</strong> {PRESENTATION['performance']['record_boundary']}</div>",unsafe_allow_html=True)
     st.markdown(f'<div class="public-note"><strong>Clock:</strong> completed performance ends {perf["as_of_date"]}. Cumulative wealth and drawdown below use the daily completed net path. {mtd_clock_note}</div>',unsafe_allow_html=True)
     st.markdown(f'<div class="metrics"><div class="metric"><div class="ml">Completed YTD</div><div class="mv">{pct(completed_ytd)}</div><div class="ms">{latest_completed_year}-01-01 → {perf["support_end"]}</div></div><div class="metric"><div class="ml">CAGR</div><div class="mv">{pct(m["cagr"])}</div><div class="ms">{perf["support_start"]} → {perf["support_end"]}</div></div><div class="metric"><div class="ml">Ann. volatility</div><div class="mv">{pct(m["ann_vol"])}</div><div class="ms">{perf["support_start"]} → {perf["support_end"]} · daily 252D</div></div><div class="metric"><div class="ml">Sharpe</div><div class="mv">{num(m["sharpe_rf0"])}</div><div class="ms">{perf["support_start"]} → {perf["support_end"]} · RF=0</div></div><div class="metric"><div class="ml">Max drawdown</div><div class="mv">{pct(m["max_drawdown"])}</div><div class="ms">{perf["support_start"]} → {perf["support_end"]}</div></div><div class="metric"><div class="ml">Calmar</div><div class="mv">{num(m["calmar"])}</div><div class="ms">{perf["support_start"]} → {perf["support_end"]}</div></div></div>',unsafe_allow_html=True)
     if not comp or not comp.get("summary"):
@@ -192,16 +188,17 @@ with tabs[1]:
         st.error("Reference benchmark frequency contract mismatch.")
         st.stop()
     st.markdown('<div class="section-head"><div><div class="sk">Completed daily comparison</div><div class="stitle">F2R versus reference benchmarks</div></div><div class="snote">Daily completed net paths · 252D annualization</div></div>',unsafe_allow_html=True)
-    st.markdown(f'<div class="benchmark-note"><b>Performance comparison:</b> {comp["support_start"]} → {comp["support_end"]} · {comp.get("daily_observations",0):,} daily observations · {comp["months"]} completed months. The equal-weight 11-asset universe and SPY / AGG 60 / 40 are reference comparators only; F2R is not managed as a benchmark-relative mandate.</div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="benchmark-note"><b>Performance comparison:</b> {comp["support_start"]} → {comp["support_end"]} · {comp.get("daily_observations",0):,} daily observations · {comp["months"]} completed months. {PRESENTATION["performance"]["comparison_note"]}</div>',unsafe_allow_html=True)
+    _series_labels = [PRESENTATION["performance"]["series_labels"]["F2R"], PRESENTATION["performance"]["series_labels"]["EW11"], PRESENTATION["performance"]["series_labels"]["SPY_AGG_60_40"]]
     summary=pd.DataFrame([{
-        "Series":r["series"],
+        "Series":_series_labels[i] if i < len(_series_labels) else r["series"],
         "Cumulative":pct(r.get("cumulative_return")),
         "CAGR":pct(r.get("cagr")),
         "Ann. Vol":pct(r.get("ann_vol")),
         "Sharpe (RF=0)":num(r.get("sharpe_rf0")),
         "Max DD":pct(r.get("max_drawdown")),
         "Calmar":num(r.get("calmar")),
-    } for r in comp["summary"]])
+    } for i,r in enumerate(comp["summary"])])
     table(summary)
     st.markdown('<div style="height:1rem"></div>',unsafe_allow_html=True)
     growth=pd.DataFrame(perf["growth_series"]); growth["dt"]=pd.to_datetime(growth["date"])
@@ -219,8 +216,8 @@ with tabs[2]:
     hm=hist["metrics"]
     full_hist=pd.DataFrame(hist.get("full_history", []))
     last_completed_holding=str(full_hist["holding_month"].max()) if not full_hist.empty else "—"
-    st.markdown('<div class="section-head"><div><div class="sk">Allocation history</div><div class="stitle">Portfolio history</div></div><div class="snote">Completed target history + current Official + clearly labeled Preview</div></div>',unsafe_allow_html=True)
-    st.markdown(f'<div class="public-note">Historical rows contain the target portfolios used to reproduce completed performance through {perf["support_end"]}, including the opening target needed for the first execution transition. Current Official and provisional Preview are shown in the same fixed 11-ETF matrix; neither is included in completed performance.</div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="section-head"><div><div class="sk">{PRESENTATION["history"]["eyebrow"]}</div><div class="stitle">{PRESENTATION["history"]["title"]}</div></div><div class="snote">{PRESENTATION["history"]["state_note"]}</div></div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="public-note">{PRESENTATION["history"]["boundary_template"].format(completed_end=perf["support_end"])}</div>',unsafe_allow_html=True)
     st.markdown(f'<div class="metrics"><div class="metric"><div class="ml">Completed-history targets</div><div class="mv">{hm["months"]}</div><div class="ms">{hist["coverage"]}</div></div><div class="metric"><div class="ml">Completed performance</div><div class="mv">{perf["support_end"][:7]}</div><div class="ms">through {perf["support_end"]}</div></div><div class="metric"><div class="ml">Latest completed holding</div><div class="mv">{last_completed_holding}</div><div class="ms">included in completed performance</div></div><div class="metric"><div class="ml">Avg monthly replacements</div><div class="mv">{hm["avg_changes"]:.2f}</div><div class="ms">names changed vs. prior target</div></div><div class="metric"><div class="ml">Most selected</div><div class="mv">{hm["most_selected_asset"]}</div><div class="ms">{hm["most_selected_months"]} completed signals</div></div><div class="metric"><div class="ml">Current official signal</div><div class="mv">{off["signal_period"]}</div><div class="ms">Holding {off_holding} · {"Current MTD open" if mtd_available else "awaiting execution close"}</div></div></div>',unsafe_allow_html=True)
     target_months = int(hm["months"])
     completed_months = int(comp.get("months", 0)) if comp else 0
@@ -229,7 +226,7 @@ with tabs[2]:
         if target_months == completed_months + 1 else
         f"The target-history count is {target_months}; the completed return record contains {completed_months} months."
     )
-    st.caption("Signal month identifies the model decision; Holding month is the associated next-month target. Execution date is the first-next common close. The current open holding month and Preview are not part of completed performance history. " + opening_note)
+    st.caption(PRESENTATION["history"]["signal_note"] + " " + opening_note)
 
     if not full_hist.empty:
         assets=[]
@@ -248,27 +245,27 @@ with tabs[2]:
             cc=alt.Chart(change_df).mark_bar().encode(x=alt.X("dt:T",title=None,axis=alt.Axis(format="%Y",tickCount=9,labelAngle=0)),y=alt.Y("changes:Q",title="Entering assets",scale=alt.Scale(domain=[0,4]),axis=alt.Axis(tickMinStep=1)),tooltip=[alt.Tooltip("month:N",title="Signal month"),alt.Tooltip("changes:Q",format="d")])
             st.altair_chart(dark_chart(cc,245),use_container_width=True)
 
-    st.markdown('<div class="section-head"><div><div class="sk">Recent target path</div><div class="stitle">Portfolio target history</div></div><div class="snote">11-ETF universe · Preview / Official / completed history</div></div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="section-head"><div><div class="sk">{PRESENTATION["history"]["target_eyebrow"]}</div><div class="stitle">{PRESENTATION["history"]["target_title"]}</div></div><div class="snote">{PRESENTATION["history"]["target_note"]}</div></div>',unsafe_allow_html=True)
     history_table(portfolio_history_display.head(12))
     dl_col,note_col=st.columns([0.22,0.78])
     with dl_col:
         st.download_button("Download Excel",data=portfolio_history_xlsx,file_name="F2R_Portfolio_Target_History.xlsx",mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",use_container_width=True)
     with note_col:
-        st.caption("The workbook matches the on-screen 11-ETF matrix. Preview is provisional and excluded from completed performance.")
+        st.caption(PRESENTATION["history"]["excel_note"])
     with st.expander("Full historical target record + current target states"):
         history_table(portfolio_history_display)
     st.markdown(f'<div class="public-note">{hist["history_note"]} Current Official and Preview are added above only as clearly labeled current states.</div>',unsafe_allow_html=True)
 
 with tabs[3]:
-    st.markdown('<div class="section-head"><div><div class="sk">System identity</div><div class="stitle">Architecture and operating boundary</div></div></div>',unsafe_allow_html=True)
-    st.markdown(f'<div class="boundary"><div class="bcell"><div class="bl">Information</div><div class="bv">Own-price history</div><div class="bs">Point-in-time cross-asset market information.</div></div><div class="bcell"><div class="bl">Forecasting</div><div class="bv">Heterogeneous engines</div><div class="bs">Conventional machine learning plus pretrained time-series intelligence.</div></div><div class="bcell"><div class="bl">Portfolio</div><div class="bv">{system["portfolio_rule"]}</div><div class="bs">{system["decision_cycle"]} decision cycle.</div></div><div class="bcell"><div class="bl">Accounting</div><div class="bv">Model-portfolio validity</div><div class="bs">{system["execution_note"]}</div></div></div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="section-head"><div><div class="sk">{PRESENTATION["system"]["eyebrow"]}</div><div class="stitle">{PRESENTATION["system"]["title"]}</div></div></div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="boundary"><div class="bcell"><div class="bl">Information</div><div class="bv">{PRESENTATION["system"]["information_title"]}</div><div class="bs">{PRESENTATION["system"]["information_note"]}</div></div><div class="bcell"><div class="bl">Forecasting</div><div class="bv">{PRESENTATION["system"]["forecasting_title"]}</div><div class="bs">{PRESENTATION["system"]["forecasting_note"]}</div></div><div class="bcell"><div class="bl">Portfolio</div><div class="bv">{PRESENTATION["system"]["portfolio_title"]}</div><div class="bs">{PRESENTATION["system"]["portfolio_note"]}</div></div><div class="bcell"><div class="bl">Accounting</div><div class="bv">{PRESENTATION["system"]["accounting_title"]}</div><div class="bs">{PRESENTATION["system"]["accounting_note"]}</div></div></div>',unsafe_allow_html=True)
     spec=pd.DataFrame([
         ["Universe",", ".join(system["universe"])],
-        ["Decision cycle",system["decision_cycle"]],
-        ["Portfolio rule",system["portfolio_rule"]],
-        ["Architecture",system["architecture_note"]],
-        ["Performance identity","Current canonical model portfolio"],
-        ["Historical disclosure",d["evidence_boundary"]["public_disclosure"]],
+        ["Decision cycle","Monthly"],
+        ["Portfolio rule",PRESENTATION["system"]["portfolio_title"]],
+        ["Architecture",PRESENTATION["system"]["architecture_note"]],
+        ["Performance identity",PRESENTATION["system"]["performance_identity"]],
+        ["Historical disclosure",PRESENTATION["system"]["historical_disclosure"]],
     ],columns=["Field","Public specification"])
     table(spec)
     st.markdown('<div class="note">Exact model-integration weights, runtime paths, low-level tie tolerances, prior-version chronology, and unpromoted research branches remain internal.</div>',unsafe_allow_html=True)

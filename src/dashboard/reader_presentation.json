@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "F2R_SHARED_READER_SURFACE_V3",
+  "hero": {
+    "eyebrow": "Model portfolio",
+    "title": "Forecast-ranked cross-asset portfolio.",
+    "copy": "F2R uses point-in-time own-price history across conventional machine-learning models and pretrained time-series intelligence. Their forecasts enter a common cross-asset ranking process before the monthly model portfolio is formed. The official portfolio and intramonth preview are shown separately."
+  },
+  "tabs": {
+    "shared": [
+      "Current Portfolio",
+      "Performance",
+      "Portfolio History",
+      "System"
+    ],
+    "local_only": [
+      "Research"
+    ]
+  },
+  "current": {
+    "eyebrow": "Current state",
+    "title": "Current model portfolio and intramonth preview",
+    "legend": "Blue = official · amber = preview",
+    "official_title": "Official Portfolio",
+    "preview_title": "Intramonth Preview · NOT EXECUTED",
+    "official_note": "Current monthly model portfolio.",
+    "preview_note": "Provisional current-month model estimate; it may change before month-end."
+  },
+  "performance": {
+    "eyebrow": "Completed current-model history",
+    "title": "Performance & risk",
+    "completed_suffix": "Current MTD excluded",
+    "record_boundary": "This standalone dashboard uses F2R's completed current-model history from 2017-05 onward. PDS may show a longer current-definition reconstruction of F2R for cross-system comparison; that is a separate research series and does not replace this standalone F2R record.",
+    "comparison_title": "F2R versus reference benchmarks",
+    "comparison_note": "The equal-weight 11-asset universe and SPY / AGG 60/40 are reference comparators only; F2R is not managed as a benchmark-relative mandate.",
+    "series_labels": {
+      "F2R": "F2R · current model",
+      "EW11": "Equal-weight 11-asset universe",
+      "SPY_AGG_60_40": "SPY / AGG 60/40 reference"
+    }
+  },
+  "history": {
+    "eyebrow": "Allocation history",
+    "title": "Portfolio history",
+    "state_note": "Completed target history + current Official + clearly labeled Preview",
+    "boundary_template": "Historical rows contain the target portfolios used to reproduce completed performance through {completed_end}, including the opening target needed for the first execution transition. Current Official and provisional Preview are shown in the same fixed 11-ETF matrix; neither is included in completed performance.",
+    "signal_note": "Signal month identifies the model decision; Holding month is the associated next-month target. Execution date is the first-next common close. The current open holding month and Preview are not part of completed performance history.",
+    "target_eyebrow": "Recent target path",
+    "target_title": "Portfolio target history",
+    "target_note": "11-ETF universe · Preview / Official / completed history",
+    "excel_note": "The workbook matches the on-screen 11-ETF matrix. Preview is provisional and excluded from completed performance.",
+    "status_labels": {
+      "preview": "PREVIEW",
+      "official": "OFFICIAL",
+      "history": "HISTORY"
+    }
+  },
+  "system": {
+    "eyebrow": "System identity",
+    "title": "Architecture and operating boundary",
+    "information_title": "Own-price history",
+    "information_note": "Point-in-time cross-asset market information.",
+    "forecasting_title": "Heterogeneous engines",
+    "forecasting_note": "Conventional machine learning plus pretrained time-series intelligence.",
+    "portfolio_title": "Top-4 equal weight",
+    "portfolio_note": "Monthly decision cycle.",
+    "accounting_title": "Model-portfolio validity",
+    "accounting_note": "Timing, turnover, transaction costs and accounting preserve model-portfolio validity; this is not brokerage-account reporting.",
+    "architecture_note": "F2R combines conventional machine-learning forecasts with pretrained time-series intelligence at the cross-sectional ranking layer before portfolio selection.",
+    "performance_identity": "Current model portfolio",
+    "historical_disclosure": "Historical results apply the current F2R specification consistently across the available standalone history; any longer PDS reconstruction is a separate cross-system research series."
+  },
+  "intentional_differences": {
+    "local_badge": "LOCAL OPERATOR",
+    "public_badge": "CURRENT MODEL",
+    "local_extra_tab": "Research",
+    "local_timestamp": "KST",
+    "public_timestamp": "UTC/public-state display"
+  }
+}

@@ -43,7 +43,6 @@ def build_portfolio_history(allocation_history:pd.DataFrame, official:dict, prev
 
 def display_percent(df:pd.DataFrame)->pd.DataFrame:
     out=df.copy()
-    out["Status"]=out["Status"].map(lambda x:"PREVIEW · PROVISIONAL" if str(x)=="PREVIEW" else str(x))
     for a in F2R_UNIVERSE:
         out[a]=out[a].map(lambda x:f"{100*float(x):.1f}%")
     return out
