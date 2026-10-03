@@ -187,7 +187,7 @@ with tabs[1]:
     if comp.get("frequency") != "DAILY" or int(comp.get("annualization_days",0)) != 252:
         st.error("Reference benchmark frequency contract mismatch.")
         st.stop()
-    st.markdown('<div class="section-head"><div><div class="sk">Completed daily comparison</div><div class="stitle">F2R versus reference benchmarks</div></div><div class="snote">Daily completed net paths · 252D annualization</div></div>',unsafe_allow_html=True)
+    st.markdown('<div class="section-head"><div><div class="sk">Completed daily comparison</div><div class="stitle">F2R and reference portfolios</div></div><div class="snote">Daily completed net returns · 252D annualization</div></div>',unsafe_allow_html=True)
     st.markdown(f'<div class="benchmark-note"><b>Performance comparison:</b> {comp["support_start"]} → {comp["support_end"]} · {comp.get("daily_observations",0):,} daily observations · {comp["months"]} completed months. {PRESENTATION["performance"]["comparison_note"]}</div>',unsafe_allow_html=True)
     _series_labels = [PRESENTATION["performance"]["series_labels"]["F2R"], PRESENTATION["performance"]["series_labels"]["EW11"], PRESENTATION["performance"]["series_labels"]["SPY_AGG_60_40"]]
     summary=pd.DataFrame([{

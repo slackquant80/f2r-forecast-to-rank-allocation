@@ -31,7 +31,7 @@
     "title": "Performance & risk",
     "completed_suffix": "Current MTD excluded",
     "record_boundary": "This standalone dashboard uses F2R's completed current-model history from 2017-05 onward. PDS may show a longer current-definition reconstruction of F2R for cross-system comparison; that is a separate research series and does not replace this standalone F2R record.",
-    "comparison_title": "F2R versus reference benchmarks",
+    "comparison_title": "F2R and reference portfolios",
     "comparison_note": "The equal-weight 11-asset universe and SPY / AGG 60/40 are reference comparators only; F2R is not managed as a benchmark-relative mandate.",
     "series_labels": {
       "F2R": "F2R · current model",
