@@ -12,6 +12,8 @@ on:
       - "README.md"
       - "requirements.txt"
       - "ci/verify_release.py"
+      - "ci/receive_private_review.py"
+      - "ci/test_review_roundtrip.py"
       - ".github/workflows/f2r-public-review.yml"
   push:
     branches: [main]
@@ -24,6 +26,8 @@ on:
       - "README.md"
       - "requirements.txt"
       - "ci/verify_release.py"
+      - "ci/receive_private_review.py"
+      - "ci/test_review_roundtrip.py"
       - ".github/workflows/f2r-public-review.yml"
   workflow_dispatch:
 
@@ -44,6 +48,7 @@ jobs:
           PYTHONDONTWRITEBYTECODE=1 python3 ci/verify_release.py --selftest
           python3 -m py_compile ci/receive_private_review.py
           PYTHONDONTWRITEBYTECODE=1 python3 ci/receive_private_review.py --selftest
+          PYTHONDONTWRITEBYTECODE=1 python3 ci/test_review_roundtrip.py
       - name: If release files change, require exact live-identity and accounting contract
         shell: bash
         run: |
