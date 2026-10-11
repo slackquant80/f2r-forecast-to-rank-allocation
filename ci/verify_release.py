@@ -136,15 +136,16 @@ def selftest():
             assert "F2R_RELEASE_FILE_MISSING: release_manifest.json" in str(exc), str(exc)
         else:
             raise AssertionError("Missing manifest was accepted")
+        (root / WITNESS).write_text(json.dumps({
+            "schema":"F2R_PUBLIC_LIVE_IDENTITY_V1",
+            "public_state_sha256":"0" * 64}))
         (root / MANIFEST).write_text(json.dumps({
             "schema_version":"1.0","system":"Forecast-to-Rank Allocation",
             "files":{name:sha((root/name).read_bytes()) for name in RELEASE_FILES}}))
         try:
             audit(root)
         except ValueError as exc:
-            assert "F2R_LIVE_STATE_WITNESS_HOLD" in str(exc) or "F2R_MANIFEST" in str(exc) or "F2R_" in str(exc)
-        except json.JSONDecodeError:
-            pass
+            assert "F2R_LIVE_STATE_WITNESS_HOLD" in str(exc), str(exc)
         else:
             raise AssertionError("Fabricated witness was accepted")
         (root/"src/dashboard/app.py").write_bytes(b"tampered")
