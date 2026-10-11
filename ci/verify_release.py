@@ -133,7 +133,7 @@ def selftest():
         try:
             audit(root)
         except ValueError as exc:
-            assert "F2R_MANIFEST" in str(exc) or "F2R_LIVE" in str(exc), str(exc)
+            assert "F2R_RELEASE_FILE_MISSING: release_manifest.json" in str(exc), str(exc)
         else:
             raise AssertionError("Missing manifest was accepted")
         (root / MANIFEST).write_text(json.dumps({
