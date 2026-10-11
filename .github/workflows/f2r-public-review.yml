@@ -1,0 +1,57 @@
+name: F2R Public Artifact PR Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/dashboard/**"
+      - "release_manifest.json"
+      - ".gitattributes"
+      - ".gitignore"
+      - ".streamlit/**"
+      - "README.md"
+      - "requirements.txt"
+      - "ci/verify_release.py"
+      - ".github/workflows/f2r-public-review.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/dashboard/**"
+      - "release_manifest.json"
+      - ".gitattributes"
+      - ".gitignore"
+      - ".streamlit/**"
+      - "README.md"
+      - "requirements.txt"
+      - "ci/verify_release.py"
+      - ".github/workflows/f2r-public-review.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Verify negative gates and Python syntax
+        run: |
+          python3 -m py_compile ci/verify_release.py
+          PYTHONDONTWRITEBYTECODE=1 python3 ci/verify_release.py --selftest
+      - name: If release files change, require exact live-identity and accounting contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          # HEAD^1 is the PR's base for pull_request merge commits;
+          # for main push it is the previous main commit.
+          files="$(git diff --name-only HEAD^1 HEAD)"
+          if printf '%s\n' "$files" | grep -Eq '^(src/dashboard/|release_manifest\.json$|\.gitattributes$|\.gitignore$|\.streamlit/|README\.md$|requirements\.txt$)'; then
+            PYTHONDONTWRITEBYTECODE=1 python3 ci/verify_release.py --validate-release .
+          else
+            echo "F2R_CI_INFRA_ONLY_PASS_RELEASE_NOT_REVALIDATED"
+            echo "Legacy deployed main is not certified until a real frozen release with witness passes."
+          fi
