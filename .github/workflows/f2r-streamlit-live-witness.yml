@@ -32,7 +32,24 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           python3 ci/verify_live_witness.py --timeout-seconds 240 --interval-seconds 10
-      - name: Pull request cannot claim live release
+      - name: Public Streamlit endpoint diagnostics only (never deployment proof on PR)
         if: github.event_name == 'pull_request'
         run: |
-          echo "PR code validated; Streamlit version evidence is only checked after main merge."
+          python3 - <<'PY'
+          from urllib.request import Request,urlopen
+          from urllib.error import HTTPError,URLError
+          base='https://f2r-forecast-to-rank-allocation.streamlit.app'
+          routes=['/', '/_stcore/health', '/app/static/release_identity.json', '/static/release_identity.json']
+          for route in routes:
+              req=Request(base+route,headers={'Cache-Control':'no-cache','Accept':'*/*'})
+              try:
+                  with urlopen(req,timeout=12) as r:
+                      print('F2R_ENDPOINT_DIAGNOSTIC',route,'HTTP',r.status,
+                            'TYPE',r.headers.get('Content-Type',''), 'FINAL',r.url)
+              except HTTPError as e:
+                  print('F2R_ENDPOINT_DIAGNOSTIC',route,'HTTP',e.code,
+                        'TYPE',e.headers.get('Content-Type',''), 'FINAL',e.url)
+              except (URLError,TimeoutError,OSError) as e:
+                  print('F2R_ENDPOINT_DIAGNOSTIC',route,'ERROR',type(e).__name__)
+          print('F2R_ENDPOINT_DIAGNOSTIC_ONLY_NOT_RELEASE_PROOF')
+          PY
