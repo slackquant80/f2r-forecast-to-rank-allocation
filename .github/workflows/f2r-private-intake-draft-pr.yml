@@ -37,7 +37,6 @@ jobs:
           ref: main
           fetch-depth: 1
       - name: Create scoped private source reader token
-        if: ${{ vars.F2R_APP_CLIENT_ID != '' }}
         id: source-reader
         uses: actions/create-github-app-token@v3
         with:
@@ -49,10 +48,10 @@ jobs:
       - name: Fetch pinned private source review package
         shell: bash
         env:
-          GH_TOKEN: ${{ steps.source-reader.outputs.token || secrets.F2R_SOURCE_READ_TOKEN }}
+          GH_TOKEN: ${{ steps.source-reader.outputs.token }}
         run: |
           set -euo pipefail
-          test -n "$GH_TOKEN" || { echo "F2R private source reader credentials absent" >&2; exit 2; }
+          test -n "$GH_TOKEN" || { echo "GitHub App source reader required; no personal PAT fallback" >&2; exit 2; }
           [[ "$F2R_RELEASE_TAG" =~ ^f2r-intake-[A-Za-z0-9._-]+$ ]] || exit 2
           [[ "$F2R_RELEASE_SHA" =~ ^[a-f0-9]{64}$ ]] || exit 2
           gh release view "$F2R_RELEASE_TAG" --repo slackquant80/research-multiasset \
