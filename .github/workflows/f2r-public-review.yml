@@ -15,6 +15,7 @@ on:
       - "ci/receive_private_review.py"
       - "ci/test_review_roundtrip.py"
       - ".github/workflows/f2r-public-review.yml"
+      - ".github/workflows/f2r-private-intake-draft-pr.yml"
   push:
     branches: [main]
     paths:
@@ -29,6 +30,7 @@ on:
       - "ci/receive_private_review.py"
       - "ci/test_review_roundtrip.py"
       - ".github/workflows/f2r-public-review.yml"
+      - ".github/workflows/f2r-private-intake-draft-pr.yml"
   workflow_dispatch:
 
 permissions:
@@ -49,6 +51,19 @@ jobs:
           python3 -m py_compile ci/receive_private_review.py
           PYTHONDONTWRITEBYTECODE=1 python3 ci/receive_private_review.py --selftest
           PYTHONDONTWRITEBYTECODE=1 python3 ci/test_review_roundtrip.py
+      - name: Enforce reusable short-lived GitHub App only
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('.github/workflows/f2r-private-intake-draft-pr.yml').read_text()
+          assert 'actions/create-github-app-token@v3' in s
+          assert 'permission-contents: read' in s
+          assert 'repositories: research-multiasset' in s
+          assert 'steps.source-reader.outputs.token' in s
+          assert 'F2R_SOURCE_READ_TOKEN' not in s
+          assert 'secrets.F2R_APP_PRIVATE_KEY' in s
+          print('F2R_EPHEMERAL_GITHUB_APP_NO_PAT_FALLBACK_PASS')
+          PY
       - name: If release files change, require exact live-identity and accounting contract
         shell: bash
         run: |
