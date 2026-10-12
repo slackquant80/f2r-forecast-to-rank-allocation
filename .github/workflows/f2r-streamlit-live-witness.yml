@@ -1,0 +1,38 @@
+name: F2R Streamlit Live Identity Witness
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "ci/verify_live_witness.py"
+      - ".github/workflows/f2r-streamlit-live-witness.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/dashboard/**"
+      - "release_manifest.json"
+      - "ci/verify_live_witness.py"
+      - ".github/workflows/f2r-streamlit-live-witness.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fail-closed-live-identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Standalone deterministic negative tests
+        run: |
+          python3 -m py_compile ci/verify_live_witness.py
+          python3 ci/verify_live_witness.py --selftest
+      - name: Streamlit deployed static witness parity
+        if: github.event_name != 'pull_request'
+        run: |
+          python3 ci/verify_live_witness.py --timeout-seconds 240 --interval-seconds 10
+      - name: Pull request cannot claim live release
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "PR code validated; Streamlit version evidence is only checked after main merge."
