@@ -1,0 +1,42 @@
+name: F2R Source Reader App Authentication
+
+# Safe read-only, isolated credential test. No release, PR, code, or data writes.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/source-reader-app-auth-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  private-source-read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Mint repository-scoped, short-lived GitHub App token
+        id: source-reader
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.F2R_APP_CLIENT_ID }}
+          private-key: ${{ secrets.F2R_APP_PRIVATE_KEY }}
+          owner: slackquant80
+          repositories: research-multiasset
+          permission-contents: read
+      - name: Verify private research source read-only access
+        shell: bash
+        env:
+          GH_TOKEN: ${{ steps.source-reader.outputs.token }}
+        run: |
+          set -euo pipefail
+          test -n "$GH_TOKEN" || { echo "SOURCE_READER_TOKEN_EMPTY" >&2; exit 2; }
+          scope="$(gh api repos/slackquant80/research-multiasset --jq '.full_name')"
+          visibility="$(gh api repos/slackquant80/research-multiasset --jq '.private')"
+          test "$scope" = "slackquant80/research-multiasset" || exit 2
+          test "$visibility" = "true" || exit 2
+          commit="$(gh api repos/slackquant80/research-multiasset/git/ref/heads/main --jq '.object.sha')"
+          [[ "$commit" =~ ^[0-9a-f]{40}$ ]] || { echo "SOURCE_READER_SOURCE_HEAD_INVALID" >&2; exit 2; }
+          echo "F2R_APP_TOKEN_PRIVATE_SOURCE_READ_PASS"
+          echo "No write operations, candidate release, or production deployment attempted."
