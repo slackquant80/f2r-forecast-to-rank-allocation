@@ -1,0 +1,127 @@
+name: Stage F2R frozen private intake as Draft PR
+
+# Manual dispatch only. A private reviewed candidate is never deployed here.
+on:
+  workflow_dispatch:
+    inputs:
+      source_release_tag:
+        description: "Private research-multiasset prerelease tag"
+        required: true
+        type: string
+      expected_sha256:
+        description: "Exact SHA-256 of frozen F2R review candidate ZIP"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: f2r-intake-stage-review
+  cancel-in-progress: false
+
+jobs:
+  draft-review-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      F2R_RELEASE_TAG: ${{ inputs.source_release_tag }}
+      F2R_RELEASE_SHA: ${{ inputs.expected_sha256 }}
+      F2R_BRANCH: release/f2r-reviewed-${{ github.run_id }}
+      F2R_ZIP: /tmp/f2r-intake/F2R_HOSTED_REVIEW_CANDIDATE.zip
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - name: Create scoped private source reader token
+        if: ${{ vars.F2R_APP_CLIENT_ID != '' }}
+        id: source-reader
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.F2R_APP_CLIENT_ID }}
+          private-key: ${{ secrets.F2R_APP_PRIVATE_KEY }}
+          owner: slackquant80
+          repositories: research-multiasset
+          permission-contents: read
+      - name: Fetch pinned private source review package
+        shell: bash
+        env:
+          GH_TOKEN: ${{ steps.source-reader.outputs.token || secrets.F2R_SOURCE_READ_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$GH_TOKEN" || { echo "F2R private source reader credentials absent" >&2; exit 2; }
+          [[ "$F2R_RELEASE_TAG" =~ ^f2r-intake-[A-Za-z0-9._-]+$ ]] || exit 2
+          [[ "$F2R_RELEASE_SHA" =~ ^[a-f0-9]{64}$ ]] || exit 2
+          gh release view "$F2R_RELEASE_TAG" --repo slackquant80/research-multiasset \
+            --json isPrerelease,isDraft,tagName \
+            --jq 'select(.isPrerelease == true and .isDraft == false)' | grep -q .
+          mkdir -p "$(dirname "$F2R_ZIP")"
+          gh release download "$F2R_RELEASE_TAG" --repo slackquant80/research-multiasset \
+            --pattern F2R_HOSTED_REVIEW_CANDIDATE.zip --dir "$(dirname "$F2R_ZIP")"
+          echo "$F2R_RELEASE_SHA  $F2R_ZIP" | sha256sum -c --status
+          echo "F2R_PRIVATE_RELEASE_EXACT_SHA256_PASS"
+      - name: Verify content, accounting and clock; do not write
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 ci/receive_private_review.py --bundle "$F2R_ZIP"
+      - name: Determine material release delta; skip if identical
+        id: delta
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=ci python3 - <<'PY'
+          import os
+          from pathlib import Path
+          from receive_private_review import assess
+          changed=assess(Path(os.environ["F2R_ZIP"]),Path.cwd())
+          with open(os.environ["GITHUB_OUTPUT"],"a",encoding="utf-8") as out:
+              out.write("changed="+("true" if changed else "false")+"\n")
+          print("F2R_NO_MATERIAL_DELTA_NO_PR" if not changed else "F2R_REVIEW_ONLY_DELTA_READY")
+          PY
+      - name: Stage exact validated public files only
+        if: steps.delta.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 ci/receive_private_review.py --bundle "$F2R_ZIP" --stage-reviewed
+          python3 ci/verify_release.py --validate-release .
+          git diff --check
+          git add -- .gitattributes .gitignore .streamlit/config.toml README.md requirements.txt \
+            release_manifest.json src/dashboard/
+          python3 - <<'PY'
+          import subprocess
+          from ci.verify_release import RELEASE_FILES, MANIFEST
+          allowed = RELEASE_FILES | {MANIFEST}
+          actual = set(subprocess.check_output(["git","diff","--cached","--name-only"],text=True).splitlines())
+          assert actual.issubset(allowed), "F2R_WRONG_REPO_CHANGE_BOUNDARY: "+str(actual-allowed)
+          assert actual, "F2R_EMPTY_STAGE_HOLD"
+          print("F2R_EXACT_RELEASE_FILE_SCOPE_PASS")
+          PY
+      - name: Commit reviewed branch only (never main)
+        if: steps.delta.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "slackquant-f2r-review-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$F2R_BRANCH"
+          git commit -m "Stage F2R public-safe candidate for review (not deployed)"
+          git push origin "$F2R_BRANCH"
+      - name: Create Draft PR for explicit human approval
+        if: steps.delta.outputs.changed == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh pr create --draft --base main --head "$F2R_BRANCH" \
+            --title "Review F2R frozen public intake: $F2R_RELEASE_TAG" \
+            --body "Private candidate ZIP SHA256: $F2R_RELEASE_SHA
+          Validated F2R artifact and clock gates passed in isolated GitHub Actions.
+          This is a REVIEW-ONLY proposal, not evidence that Streamlit has deployed.
+          Independent PR approval and post-merge Streamlit static witness parity are required.
+          Do not infer model execution or investment-account position authority."
