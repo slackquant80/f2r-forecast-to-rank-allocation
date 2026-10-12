@@ -38,6 +38,7 @@ jobs:
           python3 - <<'PY'
           from urllib.request import Request,urlopen
           from urllib.error import HTTPError,URLError
+          from urllib.parse import urlsplit
           base='https://f2r-forecast-to-rank-allocation.streamlit.app'
           routes=['/', '/_stcore/health', '/app/static/release_identity.json', '/static/release_identity.json']
           for route in routes:
@@ -47,8 +48,11 @@ jobs:
                       print('F2R_ENDPOINT_DIAGNOSTIC',route,'HTTP',r.status,
                             'TYPE',r.headers.get('Content-Type',''), 'FINAL',r.url)
               except HTTPError as e:
+                  location=e.headers.get('Location','')
+                  target=urlsplit(location)
                   print('F2R_ENDPOINT_DIAGNOSTIC',route,'HTTP',e.code,
-                        'TYPE',e.headers.get('Content-Type',''), 'FINAL',e.url)
+                        'TYPE',e.headers.get('Content-Type',''), 'FINAL',e.url,
+                        'REDIRECT_HOST',target.hostname, 'REDIRECT_PATH',target.path)
               except (URLError,TimeoutError,OSError) as e:
                   print('F2R_ENDPOINT_DIAGNOSTIC',route,'ERROR',type(e).__name__)
           print('F2R_ENDPOINT_DIAGNOSTIC_ONLY_NOT_RELEASE_PROOF')
