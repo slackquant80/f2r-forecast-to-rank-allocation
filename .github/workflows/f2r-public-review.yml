@@ -51,6 +51,20 @@ jobs:
           python3 -m py_compile ci/receive_private_review.py
           PYTHONDONTWRITEBYTECODE=1 python3 ci/receive_private_review.py --selftest
           PYTHONDONTWRITEBYTECODE=1 python3 ci/test_review_roundtrip.py
+      - name: Auto-dispatch review gate without automatic publication
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('.github/workflows/f2r-private-intake-draft-pr.yml').read_text()
+          assert 'actions: write' in s
+          assert 'gh workflow run f2r-public-review.yml --ref "$F2R_BRANCH"' in s
+          assert 'gh pr create --draft' in s
+          assert 'F2R_INDEPENDENT_REVIEW_CI_DISPATCHED_NO_MERGE' in s
+          assert 'gh pr merge' not in s
+          assert 'gh release upload' not in s
+          assert 'workflow_dispatch:' in Path('.github/workflows/f2r-public-review.yml').read_text()
+          print('F2R_BOT_DRAFT_PR_AUTO_CI_NO_PUBLISH_PASS')
+          PY
       - name: Enforce reusable short-lived GitHub App only
         run: |
           python3 - <<'PY'
