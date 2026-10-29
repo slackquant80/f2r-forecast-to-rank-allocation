@@ -16,6 +16,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 
 concurrency:
   group: f2r-intake-stage-review
@@ -29,7 +30,7 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
       F2R_RELEASE_TAG: ${{ inputs.source_release_tag }}
       F2R_RELEASE_SHA: ${{ inputs.expected_sha256 }}
-      F2R_BRANCH: release/f2r-reviewed-${{ github.run_id }}
+      F2R_BRANCH: release/f2r-reviewed-${{ github.run_id }}-${{ github.run_attempt }}
       F2R_ZIP: /tmp/f2r-intake/F2R_HOSTED_REVIEW_CANDIDATE.zip
     steps:
       - uses: actions/checkout@v4
@@ -124,3 +125,16 @@ jobs:
           This is a REVIEW-ONLY proposal, not evidence that Streamlit has deployed.
           Independent PR approval and post-merge Streamlit static witness parity are required.
           Do not infer model execution or investment-account position authority."
+      - name: Trigger exact candidate independent CI on PR head
+        if: steps.delta.outputs.changed == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # PRs created with the default GITHUB_TOKEN do not themselves
+          # trigger pull_request CI. workflow_dispatch is an explicit GitHub
+          # Actions exception and checks out only the new review branch.
+          gh workflow run f2r-public-review.yml --ref "$F2R_BRANCH" \
+            --repo slackquant80/f2r-forecast-to-rank-allocation
+          echo "F2R_INDEPENDENT_REVIEW_CI_DISPATCHED_NO_MERGE"
