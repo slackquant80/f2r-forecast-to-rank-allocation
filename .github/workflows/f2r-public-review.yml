@@ -58,6 +58,11 @@ jobs:
           s = Path('.github/workflows/f2r-private-intake-draft-pr.yml').read_text()
           assert 'actions: write' in s
           assert 'gh workflow run f2r-public-review.yml --ref "$F2R_BRANCH"' in s
+          expected_branch = ("F2R_BRANCH: release/f2r-reviewed-"
+                             + chr(36) + "{{ github.run_id }}-"
+                             + chr(36) + "{{ github.run_attempt }}")
+          assert expected_branch in s, 'F2R manual retry branch may collide'
+          assert 'workflow_dispatch:' in s
           assert 'gh pr create --draft' in s
           assert 'F2R_INDEPENDENT_REVIEW_CI_DISPATCHED_NO_MERGE' in s
           assert 'gh pr merge' not in s

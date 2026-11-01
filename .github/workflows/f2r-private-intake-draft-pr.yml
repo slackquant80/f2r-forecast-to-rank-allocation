@@ -30,7 +30,7 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
       F2R_RELEASE_TAG: ${{ inputs.source_release_tag }}
       F2R_RELEASE_SHA: ${{ inputs.expected_sha256 }}
-      F2R_BRANCH: release/f2r-reviewed-${{ github.run_id }}
+      F2R_BRANCH: release/f2r-reviewed-${{ github.run_id }}-${{ github.run_attempt }}
       F2R_ZIP: /tmp/f2r-intake/F2R_HOSTED_REVIEW_CANDIDATE.zip
     steps:
       - uses: actions/checkout@v4
