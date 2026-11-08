@@ -1,4 +1,4 @@
-name: F2R Streamlit Live Identity Witness
+name: F2R Canonical SlackQuant Live Identity Witness
 
 on:
   pull_request:
@@ -28,11 +28,11 @@ jobs:
         run: |
           python3 -m py_compile ci/verify_live_witness.py
           python3 ci/verify_live_witness.py --selftest
-      - name: Streamlit deployed static witness parity
+      - name: SlackQuant deployed source-owned public JSON SHA parity
         if: github.event_name != 'pull_request'
         run: |
           python3 ci/verify_live_witness.py --timeout-seconds 240 --interval-seconds 10
       - name: Pull request cannot claim live release
         if: github.event_name == 'pull_request'
         run: |
-          echo "PR code validated; Streamlit version evidence is only checked after main merge."
+          echo "PR code validated; Canonical SlackQuant public JSON SHA evidence is checked only after main merge."
