@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only F2R Streamlit live-version witness; never deploys or mutates hosting."""
+"""Read-only F2R canonical SlackQuant public-state witness; never deploys or mutates hosting."""
 from __future__ import annotations
 import argparse
 import hashlib
@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 STATE = ROOT / "src/dashboard/public_data/f2r_public_state.json"
 MARKER = ROOT / "src/dashboard/static/release_identity.json"
 SCHEMA = "F2R_PUBLIC_LIVE_IDENTITY_V1"
-URL = "https://f2r-forecast-to-rank-allocation.streamlit.app/app/static/release_identity.json"
+URL = "https://research.slackquant.com/data/systems/f2r/public_state.json"
 HEX = re.compile(r"^[0-9a-f]{64}$")
 
 
@@ -35,13 +35,16 @@ def pull(expected: str, attempt: int) -> dict:
     with urlopen(req, timeout=12) as resp:
         if resp.status != 200:
             raise ValueError("F2R_LIVE_WITNESS_HTTP_NOT_OK")
-        payload = resp.read(8193)
-    if len(payload) > 8192:
+        payload = resp.read(8 * 1024 * 1024 + 1)
+    if len(payload) > 8 * 1024 * 1024:
         raise ValueError("F2R_LIVE_WITNESS_OVERSIZED")
     value = json.loads(payload.decode("utf-8-sig"))
-    if not isinstance(value, dict):
-        raise ValueError("F2R_LIVE_WITNESS_INVALID_DOCUMENT")
-    return value
+    if not isinstance(value, dict) or value.get("schema_version") != "2.0":
+        raise ValueError("F2R_LIVE_WITNESS_INVALID_PUBLIC_STATE")
+    official = (value.get("live_state") or {}).get("official") or {}
+    if len(official.get("holdings") or []) != 4:
+        raise ValueError("F2R_LIVE_WITNESS_INVALID_OFFICIAL_TOP4")
+    return {"schema": SCHEMA, "public_state_sha256": hashlib.sha256(payload).hexdigest()}
 
 
 def check(expected: str, timeout: float, interval: float,
@@ -55,7 +58,7 @@ def check(expected: str, timeout: float, interval: float,
         try:
             doc = getter(expected, attempt)
             if doc.get("schema") == SCHEMA and doc.get("public_state_sha256") == expected:
-                print("F2R_LIVE_STREAMLIT_EXACT_PUBLIC_STATE_SHA256_PASS", expected)
+                print("F2R_LIVE_SLACKQUANT_EXACT_PUBLIC_STATE_SHA256_PASS", expected)
                 return True
             print("F2R_LIVE_PENDING_IDENTITY_STALE attempt", attempt)
         except (HTTPError, URLError, TimeoutError, OSError, ValueError,
@@ -104,7 +107,7 @@ def main():
     expected = expected_sha()
     if check(expected, args.timeout_seconds, args.interval_seconds):
         return 0
-    print("F2R_LIVE_STREAMLIT_UNVERIFIED_NOT_DEPLOYMENT_PROOF", expected, file=sys.stderr)
+    print("F2R_LIVE_SLACKQUANT_UNVERIFIED_NOT_DEPLOYMENT_PROOF", expected, file=sys.stderr)
     return 3
 
 
@@ -112,5 +115,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except (ValueError, FileNotFoundError, OSError, UnicodeError, json.JSONDecodeError) as e:
-        print("F2R_LIVE_STREAMLIT_PRECHECK_HOLD", type(e).__name__, str(e), file=sys.stderr)
+        print("F2R_LIVE_SLACKQUANT_PRECHECK_HOLD", type(e).__name__, str(e), file=sys.stderr)
         raise SystemExit(2)
