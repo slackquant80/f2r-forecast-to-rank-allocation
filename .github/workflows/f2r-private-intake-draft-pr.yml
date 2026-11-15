@@ -48,7 +48,6 @@ jobs:
             jq -r --arg title "$CANDIDATE_TITLE" --arg tag "$CANDIDATE_TAG" \
               --arg sha "$CANDIDATE_SHA" \
               '[.[] | select(.isDraft == true and .title == $title and
-                ((.body // "") | contains($tag)) and
                 ((.body // "") | contains($sha)))] | length')"
           [[ "$matches" =~ ^[0-9]+$ ]] || exit 2
           if (( matches > 0 )); then
