@@ -23,7 +23,45 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+
+  # Cheap GitHub-only gate: skip an already-open, exact same reviewed source
+  # candidate BEFORE minting private-source tokens or downloading any assets.
+  candidate-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      duplicate: ${{ steps.check.outputs.duplicate }}
+    steps:
+      - id: check
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE_TITLE: "Review F2R frozen public intake: ${{ inputs.source_release_tag }}"
+          CANDIDATE_TAG: "${{ inputs.source_release_tag }}"
+          CANDIDATE_SHA: "${{ inputs.expected_sha256 }}"
+        run: |
+          set -euo pipefail
+          [[ "$CANDIDATE_TAG" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{1,100}$ ]] || exit 2
+          [[ "$CANDIDATE_SHA" =~ ^[a-f0-9]{64}$ ]] || exit 2
+          matches="$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --limit 200 \
+            --json title,body,isDraft |
+            jq -r --arg title "$CANDIDATE_TITLE" --arg tag "$CANDIDATE_TAG" \
+              --arg sha "$CANDIDATE_SHA" \
+              '[.[] | select(.isDraft == true and .title == $title and
+                ((.body // "") | contains($tag)) and
+                ((.body // "") | contains($sha)))] | length')"
+          [[ "$matches" =~ ^[0-9]+$ ]] || exit 2
+          if (( matches > 0 )); then
+            echo 'duplicate=true' >> "$GITHUB_OUTPUT"
+            echo "REVIEW_INTAKE_ALREADY_OPEN_SKIP_NO_NEW_PR_NO_CI"
+          else
+            echo 'duplicate=false' >> "$GITHUB_OUTPUT"
+            echo "REVIEW_INTAKE_NEW_OR_MATERIAL_CANDIDATE_CONTINUE"
+          fi
+
   draft-review-only:
+    needs: candidate-preflight
+    if: needs.candidate-preflight.outputs.duplicate == 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
