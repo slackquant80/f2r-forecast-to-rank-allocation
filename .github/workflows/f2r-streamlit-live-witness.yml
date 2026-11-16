@@ -9,8 +9,9 @@ on:
   push:
     branches: [main]
     paths:
-      - "src/dashboard/**"
-      - "release_manifest.json"
+      # Source-state merge precedes the independently reviewed four-system Pages
+      # promotion; do not launch a 240s expected-stale live probe for data-only merges.
+      # Live bytes are certified by the Pages postdeploy verification instead.
       - "ci/verify_live_witness.py"
       - ".github/workflows/f2r-streamlit-live-witness.yml"
   workflow_dispatch:
