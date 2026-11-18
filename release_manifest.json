@@ -1,7 +1,7 @@
 ﻿{
     "schema_version":  "1.0",
     "system":  "Forecast-to-Rank Allocation",
-    "generated_at":  "2026-11-17T19:06:53.2768961+09:00",
+    "generated_at":  "2026-11-18T13:11:38.2683521+09:00",
     "files":  {
                   ".gitattributes":  "d60f352d0db1404c70afb4bb8b2ca3fd1c610572aa40720e8a0b7baa7885418c",
                   ".gitignore":  "6feaded4e28ea86e001a6751b4e3d960e8b7c31b9616ff9936b79297086e809b",
@@ -11,8 +11,8 @@
                   "src/dashboard/app.py":  "10b387b6aa99931ee5cd4e7ea2419e826e8d4338afc488f2a758fd1037942e00",
                   "src/dashboard/portfolio_history_export.py":  "ec31cbf92ae8c708649e3411435e37127f37cf5f99c800d861012d6c79616544",
                   "src/dashboard/public_app.py":  "5ed603852d2b8aa609cbea5a8df2cd97a136f0f13a1cee70cc6e60329d19e9d4",
-                  "src/dashboard/public_data/f2r_public_state.json":  "bb8e5c7eed1d77c111a3e3562002cc5585a7d7f28fa895b5afacd50d5023aad1",
+                  "src/dashboard/public_data/f2r_public_state.json":  "38ea2cfaf6bc84cc6a5c0e37a92454ada53bd0db8f0d7bd588514d0313d0865c",
                   "src/dashboard/reader_presentation.json":  "33763af3a816f41d94476a66c2ddc35b2e096cfbf42931bdc28636b9c80c6e56",
-                  "src/dashboard/static/release_identity.json":  "03e1ce20b5d8873ef5ab8540180a8de0df94625e4306c8ffe4914860891adc44"
+                  "src/dashboard/static/release_identity.json":  "121508fd86c8ec659dbec8611d477e3ee0f4018210012221472a27b932935dcf"
               }
 }
